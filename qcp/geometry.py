@@ -153,7 +153,10 @@ def sysGeom(sysData, task):
     ### Intramolecular distances ###
     if task == '3':
         for frag in fragList:
-            print(frag['name'])
+            try:
+                print(frag['name'])
+            except KeyError:
+                print(formula(frag['syms']))
             dists = {}
             for atm1 in atmList:
                 if atm1['grp'] == frag['grp']: 
