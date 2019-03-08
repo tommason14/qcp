@@ -43,13 +43,6 @@ mgs_dict = {
         "path"    : '/group/pawsey0197/apps/source/qcp/qcp',
         }
 
-stampede_dict = {
-        "user"    : 'tmason',
-        "passwrd" : 'Leicestertigers14',
-        "cluster" : 'stampede2.tacc.utexas.edu',
-        "path"    : '/work/06233/tmason/stampede2/qcp/qcp',
-        }
-
 
 def hosts_dicts():
     """ Return host machine name. """
@@ -66,7 +59,6 @@ def hosts_dicts():
             'm3'     : mas_dict,
             'magnus' : mgs_dict,
             'monarch': mon_dict,
-            'stampede': stampede_dict 
             }
 
     cp_dicts = []
