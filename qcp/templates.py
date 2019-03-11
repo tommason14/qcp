@@ -238,7 +238,7 @@ def memFmo(nfrags, hw, mwords, ddi):
         return mem, cpus, jobfs, wall
 
     # MAGNUS AND GAIA
-    elif hw == 'gai' or hw == 'mgs':
+    elif hw == 'gai':
         cpuPerNode = 12
         cpus       = nfrags * cpuPerNode
         mem        = cpus   * 2
@@ -252,6 +252,22 @@ def memFmo(nfrags, hw, mwords, ddi):
             if gbsPerCpu > 2:
                 print("The amount of mwords & ddi in your template "\
                 + "is > than the 2GB CPUs - consider <256 total per CPU")
+        return str(cpus)
+
+    elif hw == 'mgs':
+        cpuPerNode = 12
+        cpus       = nfrags * cpuPerNode
+        mem        = cpus   * 4
+        if not ddi:
+            gbsPerCpu = mwords * 8/1024
+            if gbsPerCpu > 4:
+                print("The amount of mwords in your template "\
+                + "is > than the 4GB cpus - consider <400")
+        else:
+            gbsPerCpu = (mwords + ddi/cpus) * 8/1024
+            if gbsPerCpu > 4:
+                print("The amount of mwords & ddi in your template "\
+                + "is > than the 4GB CPUs - consider <400 total per CPU")
         return str(cpus)
 
 
