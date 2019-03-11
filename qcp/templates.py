@@ -159,13 +159,12 @@ def fmo_rjnJob(name, nfrags, mwords, ddi):
 def fmo_mgsJob(name, nfrags, mwords, ddi):
     cpus = memFmo(nfrags, 'mgs', mwords, ddi)
     lines = ["#!/bin/bash --login\n",
-    "#SBATCH --nodes=" + nfrags + "\n",
+    "#SBATCH --nodes=" + str(nfrags) + "\n",
     "#SBATCH --account=pawsey0197\n",
     "#SBATCH --time=24:00:00\n",
     "#SBATCH --export=NONE\n\n",
-    "module use /group/pawsey0197/software/cle52up04/modulefiles\n",
-    "module load gamess/2016\n",
-    "rungms " + name + ".inp 00 " + cpus + " 12"]
+    "export OMP_NUM_THREADS=1\n",
+    "/group/pawsey0197/software/cle60up05/apps/gamess_cray_build/rungms " + name + ".inp 00 " + cpus + " 24"]
     return lines
 
 
@@ -255,7 +254,7 @@ def memFmo(nfrags, hw, mwords, ddi):
         return str(cpus)
 
     elif hw == 'mgs':
-        cpuPerNode = 12
+        cpuPerNode = 24
         cpus       = nfrags * cpuPerNode
         mem        = cpus   * 4
         if not ddi:
