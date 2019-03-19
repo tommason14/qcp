@@ -227,6 +227,8 @@ def gms(path, File, template, sysData, jobTemp):
             lines = gms_gaiJob(name)
         elif hw == 'mas':
             lines = gms_masJob(name)
+        elif hw == 'stm':
+            lines = gms_stmJob(name)
 
     if lines:
         write_job(npath, name, lines)
@@ -308,6 +310,7 @@ def fmo(path, File, template, sysData, jobTemp):
     from templates  import gms_mgsJob
     from templates  import gms_masJob
     from templates  import gms_gaiJob
+    from templates  import gms_stmJob
     from tempInp    import fmo_ions
     from write      import write_xyz
     from write      import write_gmsInp

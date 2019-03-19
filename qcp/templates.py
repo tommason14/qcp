@@ -162,11 +162,30 @@ def fmo_mgsJob(name, nfrags, mwords, ddi):
     "#SBATCH --nodes=" + str(nfrags) + "\n",
     "#SBATCH --account=pawsey0197\n",
     "#SBATCH --time=24:00:00\n",
+    "#SBATCH --output= " + name + ".log\n",
     "#SBATCH --export=NONE\n\n",
     "export OMP_NUM_THREADS=1\n",
     "/group/pawsey0197/software/cle60up05/apps/gamess_cray_build/rungms " + name + ".inp 00 " + cpus + " 24"]
     return lines
 
+# Gamess on Stampede assume 22 servers per node- otherwise overclock memory requirements
+def fmo_stmJob(name, nfrags, mwords, ddi):
+    cpus = memFmo(nfrags, 'stm', mwords, ddi)
+    lines = ["#!/bin/bash\n\n",
+    "#SBATCH -J " + name + "\n",      
+    "#SBATCH -o " + name + ".log\n",  
+    "#SBATCH -e " + name + ".e%j\n",        
+    "#SBATCH -p skx-normal\n",     
+    "#SBATCH -N " + cpus / 22 + "\n",          
+    "#SBATCH --tasks-per-node=22\n",
+    "#SBATCH -t 24:00:00\n",        
+    "#SBATCH --mail-user=thomas.mason1+stampede@monash.edu\n",
+    "#SBATCH --mail-type=all\n\n",  
+    "module load intel/18.0.2\n",
+    "module load impi/18.0.2\n",
+    "module load my_gamess/2017.04.20.srs-magnus\n\n",
+    "export OMP_NUM_THREADS=1\n\n",
+    "rungms " + name + ".inp 00 " + cpus + " 22"
 
 ### FMO ON GAIA JOB SCRIPT //
 # FROM PHILIP NOT YET ESTABLISHED FOR MANY NODES
@@ -255,6 +274,22 @@ def memFmo(nfrags, hw, mwords, ddi):
 
     elif hw == 'mgs':
         cpuPerNode = 24
+        cpus       = nfrags * cpuPerNode
+        mem        = cpus   * 4
+        if not ddi:
+            gbsPerCpu = mwords * 8/1024
+            if gbsPerCpu > 4:
+                print("The amount of mwords in your template "\
+                + "is > than the 4GB cpus - consider <400")
+        else:
+            gbsPerCpu = (mwords + ddi/cpus) * 8/1024
+            if gbsPerCpu > 4:
+                print("The amount of mwords & ddi in your template "\
+                + "is > than the 4GB CPUs - consider <400 total per CPU")
+        return str(cpus)
+
+    elif hw == 'stm':
+        cpuPerNode = 22
         cpus       = nfrags * cpuPerNode
         mem        = cpus   * 4
         if not ddi:
