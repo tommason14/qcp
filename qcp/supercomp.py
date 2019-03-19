@@ -10,7 +10,8 @@ def host():
     hostName = sp.getoutput("hostname")
 
     hostDict = {'raijin': 'rjn', 'msgln': 'gai', 'm3': 'mas',
-                'magnus': 'mgs', 'monarch': 'mon'}
+                'magnus': 'mgs', 'monarch': 'mon',
+                'stampede': 'stm'}
 
     for key, value in hostDict.items():
         if key in hostName:
@@ -122,6 +123,33 @@ def mgs_q():
         temp_dict['status'] = line[5]
         temp_dict['start']  = line[6]
         temp_dict['nodes']  = line[10]
+
+        queDicts.append(temp_dict)
+        i += 1
+
+    return queDicts
+
+def stm_q():
+    import subprocess as sp
+
+    queDicts = []
+
+    user  = sp.getoutput("echo $USER")
+    queue = get_queue("squeue -u " + user)
+
+    i += 1
+    for line in queue:
+      if user in line:
+        line = line.split()
+
+        temp_dict           = {'id' : line[0]}
+        temp_dict['num']    = i
+        temp_dict['queue']  = line[1]
+        temp_dict['name']   = line[2]
+        temp_dict['user']   = line[3]
+        temp_dict['status'] = line[4]
+        temp_dict['time']   = line[5]
+        temp_dict['nodes']  = line[6]
 
         queDicts.append(temp_dict)
         i += 1
