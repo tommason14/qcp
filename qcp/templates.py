@@ -186,7 +186,7 @@ def fmo_mgsJob(name, nfrags, mwords, ddi):
     "/group/pawsey0197/software/cle60up05/apps/gamess_cray_build/rungms " + name + ".inp 00 " + cpus + " 24"]
     return lines
 
-# Gamess on Stampede assume 22 servers per node- otherwise overclock memory requirements
+# Gamess on Stampede assume 22 servers per node- otherwise overclock memory requirements (48 available, and used on gaussian)
 def fmo_stmJob(name, nfrags, mwords, ddi):
     cpus = memFmo(nfrags, 'stm', mwords, ddi)
     lines = ["#!/bin/bash\n\n",
@@ -203,7 +203,8 @@ def fmo_stmJob(name, nfrags, mwords, ddi):
     "module load impi/18.0.2\n",
     "module load my_gamess/2017.04.20.srs-magnus\n\n",
     "export OMP_NUM_THREADS=1\n\n",
-    "rungms " + name + ".inp 00 " + cpus + " 22"
+    "rungms " + name + ".inp 00 " + cpus + " 22"]
+    return lines
 
 ### FMO ON GAIA JOB SCRIPT //
 # FROM PHILIP NOT YET ESTABLISHED FOR MANY NODES
