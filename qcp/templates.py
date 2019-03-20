@@ -194,7 +194,7 @@ def fmo_stmJob(name, nfrags, mwords, ddi):
     "#SBATCH -o " + name + ".log\n",  
     "#SBATCH -e " + name + ".e%j\n",        
     "#SBATCH -p skx-normal\n",     
-    "#SBATCH -N " + cpus / 22 + "\n",          
+    "#SBATCH -N " + str(int(float(cpus) / 22)) + "\n",          
     "#SBATCH --tasks-per-node=22\n",
     "#SBATCH -t 24:00:00\n",        
     "#SBATCH --mail-user=thomas.mason1+stampede@monash.edu\n",
@@ -203,7 +203,7 @@ def fmo_stmJob(name, nfrags, mwords, ddi):
     "module load impi/18.0.2\n",
     "module load my_gamess/2017.04.20.srs-magnus\n\n",
     "export OMP_NUM_THREADS=1\n\n",
-    "rungms " + name + ".inp 00 " + cpus + " 22"]
+    "rungms " + name + ".inp 00 " + cpus  + " 22"]
     return lines
 
 ### FMO ON GAIA JOB SCRIPT //
