@@ -306,6 +306,7 @@ def fmo(path, File, template, sysData, jobTemp):
     from chemData   import pTable
     from templates  import fmo_rjnJob
     from templates  import fmo_mgsJob
+    from templates  import fmo_stmJob
     from templates  import fmo_gaiJob
     from templates  import gms_rjnJob
     from templates  import gms_mgsJob
