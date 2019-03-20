@@ -131,7 +131,7 @@ def gms_stmJob(name):
     "module load impi/18.0.2\n",
     "module load my_gamess/2017.04.20.srs-magnus\n\n",
     "export OMP_NUM_THREADS=1\n\n",
-    "rungms " + name + ".inp 00 22 22"
+    "rungms " + name + ".inp 00 22 22"]
     return lines
 
 def gms_gaiJob(name):
