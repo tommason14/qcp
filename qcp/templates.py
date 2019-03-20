@@ -194,7 +194,7 @@ def fmo_stmJob(name, nfrags, mwords, ddi):
     "#SBATCH -o " + name + ".log\n",  
     "#SBATCH -e " + name + ".e%j\n",        
     "#SBATCH -p skx-normal\n",     
-    "#SBATCH -N " + str(int(cpus) / 22) + "\n",          
+    "#SBATCH -N " + str(int(float(cpus) / 22)) + "\n",          
     "#SBATCH --tasks-per-node=22\n",
     "#SBATCH -t 24:00:00\n",        
     "#SBATCH --mail-user=thomas.mason1+stampede@monash.edu\n",
