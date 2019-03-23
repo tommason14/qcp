@@ -517,7 +517,8 @@ def fmo(path, File, template, sysData, jobTemp):
             lines = False
 
             if jobTemp:
-                lines = job_replace(name, jobTemp)
+                # lines = job_replace(name, jobTemp)
+                lines = job_replace(name + '-' + ion, jobTemp)
             else:
                 if hw == 'rjn':
                     lines = gms_rjnJob(name + '-'+ ion)
