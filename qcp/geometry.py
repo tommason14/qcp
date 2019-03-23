@@ -177,10 +177,6 @@ def sysGeom(sysData, task):
                         atm1_id, atm2_id = atm['id'] + 1, connection + 1
                         atm1_sym, atm2_sym, dist = dists[(atm['id'], connection)]
                         print(f'{atm1_sym:>4}{atm1_id:<4}{atm2_sym:>4}{atm2_id:<4}{dist:8.3f}')
-            # for k, v in dists.items():
-            #     atm1_id, atm2_id = k
-            #     print(atmList[atm1_id])
-            #     atm1_sym, atm2_sym, dist = v
 
 def dist_vec(atom1_dict, atom2_dict):
     i = atom1_dict
