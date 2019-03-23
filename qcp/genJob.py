@@ -528,6 +528,8 @@ def fmo(path, File, template, sysData, jobTemp):
                     lines = gms_gaiJob(name + '-'+ ion)
                 elif hw == 'mas':
                     lines = gms_masJob(name + '-'+ ion)
+                elif hw == 'stm':
+                    lines = gms_stmJob(name + '-'+ ion)
 
             if lines:
                 write_job(npath + name + '-'+ ion + '/', name + '-'+ ion, lines)
