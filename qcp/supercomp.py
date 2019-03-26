@@ -110,7 +110,7 @@ def mgs_q():
     user  = sp.getoutput("echo $USER")
     queue = get_queue("squeue -u " + user)
 
-    i += 1
+    i = 1
     for line in queue:
       if user in line:
         line = line.split()
@@ -137,7 +137,7 @@ def stm_q():
     user  = sp.getoutput("echo $USER")
     queue = get_queue("squeue -u " + user)
 
-    i += 1
+    i = 1
     for line in queue:
       if user in line:
         line = line.split()
@@ -228,6 +228,7 @@ def deleteJob():
              'mgs' : mgs_q,
              'mas' : mas_q,
              'mon' : mon_q,
+             'stm' : stm_q
              }
 
     queDicts = call_q[hw]()
@@ -270,12 +271,12 @@ def deleteJob():
                 if hw is 'rjn' or hw is 'gai':
                     sp.call("qdel "  + jobD['id'], shell=True)
                     print("Removed " + jobD['id'] + " from queue")
-                elif hw is 'mgs' or hw is 'mas':
+                elif hw is 'mgs' or hw is 'mas' or hw is 'stm' or hw is 'mon':
                     sp.call("scancel "  + jobD['id'], shell=True)
                     print("Removed "    + jobD['id'] + " from queue")
-                elif hw is 'mon':
-                    sp.call("scancel "  + jobD['id'], shell=True)
-                    print("Removed "    + jobD['id'] + " from queue")
+                # elif hw is 'mon':
+                    # sp.call("scancel "  + jobD['id'], shell=True)
+                    # print("Removed "    + jobD['id'] + " from queue")
 
     # IF DELETING BY NAME
     elif typ == '3':
@@ -320,6 +321,9 @@ def submit(File):
             Time = time.strftime("%H:%M:%S")
             npath = os.getcwd()
             f.write('{:12}{:10}{:8} {:30}  {}\n'.format(date, Time, ID, File, npath))
+    elif hw == 'stm':
+        ID = sp.check_output(['sbatch', File]).decode("utf-8").strip().split(' ')[-1]
+        print("Submitted: {:8}{}".format(ID, File))
     elif hw == 'mgs':
         ID = sp.check_output(['sbatch', File]).decode("utf-8").strip().split(' ')[3]
         print("Submitted: {:8}{}".format(ID, File))
