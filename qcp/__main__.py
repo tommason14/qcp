@@ -44,7 +44,7 @@ def main():
 
 
     # POSSIBLE TASKS
-    list_func = ["{}".format(x) for x in range(10)] + ['A', 'B']
+    list_func = ["{}".format(x) for x in range(10)] + ['A', 'B', 'C']
 
     if args.task in list_func:
         task = args.task
@@ -64,6 +64,7 @@ def main():
                           9. Submit all com/job in folder         \n\
                           A. Inflate system                       \n\
                           B. Interaction energy                   \n\
+                          C. Extras                               \n\
                           0. Quit                                 \n\
                                                            Task: ')
 
@@ -156,6 +157,9 @@ Inflate system---------------------------------------
  - Multiple distances can be given with a space
    between values
  - Created xyz's have the form filename_newdistA.xyz
+Extras-----------------------------------------------
+ - Obtain fluorescence data from time-dependent DFT 
+   Gaussian log files
 Quit-------------------------------------------------\n
 """
     print(lines)

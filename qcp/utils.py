@@ -1,8 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from chemData import pTable
 import re
+import time
+
+def timeit(method):
+    def timed(*args, **kw):
+        ts = time.time()
+        result = method(*args, **kw)
+        te = time.time()
+        if 'log_time' in kw:
+            name = kw.get('log_name', method.__name__.upper())
+            kw['log_time'][name] = int((te - ts) * 1000)
+        else:
+            print('%r  %2.2f ms' % \
+                  (method.__name__, (te - ts) * 1000))
+        return result
+    return timed
 
 def read_file(file):
     with open(file, "r") as f:
@@ -37,7 +51,6 @@ def write_xyz(atoms, filename = None):
                 x, y, z = float(x), float(y), float(z)
                 file.write(f"{sym:5s} {x:>15.10f} {y:15.10f} {z:15.10f} \n")
 
-
 def get_files(directory, ext):
     """Accepts a tuple of file extensions, searches in all subdirectories of the directory given for relevant files. Returns a list of files with their relative path to the directory passed in.
 
@@ -70,6 +83,8 @@ def sort_elements(lst):
 
     TODO: Extend to giving back the objects- more useful than just for formatting of symbols
     """
+    from chemData import pTable
+    
     els = []
     elements = set([atom['sym'] for atom in lst])
     for i in elements:

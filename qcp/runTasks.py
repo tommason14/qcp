@@ -189,11 +189,11 @@ def comp_tasks(task, path, filename, jobfile):
                 noFiles()
 
         # ASK USER QUESTIONS ABOUT WHAT THEY WANT
-        task = input('                                \n\
-                      1. All interionic distances     \n\
-                      2. H-bonding data               \n\
-                      3. Intramolecular bond lengths  \n\
-                                                   Task: ')
+        task = input('                                    \n\
+                          1. All interionic distances     \n\
+                          2. H-bonding data               \n\
+                          3. Intramolecular bond lengths  \n\
+                                                           Task: ')
 
         for path, File in Files:
             file_print(path, File, "Using")
@@ -289,6 +289,14 @@ def comp_tasks(task, path, filename, jobfile):
                 sysData = systemData(path, File, check_frags)
                 separate_mols(path, File, sysData)
 
+    elif task == 'C':
+        from extras import get_fluorescence_data
+     
+        task = input('                                    \n\
+                          1. Fluorescence Data            \n\
+                                                           Task: ')
+        if task == '1' or task == "":
+            get_fluorescence_data()
 
     # CHECK COMPLETED JOBS
     elif task == '10':
