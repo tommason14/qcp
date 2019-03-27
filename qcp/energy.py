@@ -55,6 +55,15 @@ def energy_gms(path, File, energy):
                     HF  = line.split()
                     HF  = HF[len(HF) - 1]
 
+            # additional check- depends on where calc was ran
+            # as to what is printed out
+            # sometimes only prints TOTAL ENERGY
+            if MP2 == "":
+                for line in lines:
+                    if 'TOTAL ENERGY =' in line:
+                        MP2 = line.split()
+                        MP2 = MP2[len(MP2) - 1]
+
     # FINDING ZP NOT INCLUDED
     # CREATE DICTIONARY OF FILE
     sysDict["Path"] = path
