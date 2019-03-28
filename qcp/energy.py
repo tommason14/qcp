@@ -66,7 +66,6 @@ def energy_gms(path, File, energy):
     sysDict["MP2" ] = MP2
 
     energy.append(sysDict)
-    print(energy)
     return energy
 
 
