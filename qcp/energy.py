@@ -28,7 +28,7 @@ def energy_gms(path, File, energy):
                 elif 'THE POINT GROUP OF THE M' in line:
                     break
 
-        lines = eof(path, File, 0.1)
+        lines = eof(path, File, 0.2)
         if scs:
             for line in lines:
                 if "E corr SCS" in line:
@@ -50,7 +50,8 @@ def energy_gms(path, File, energy):
             for line in lines:
                 if "SCS-MP2" in line:
                     MP2 = line.split()
-                    MP2 = MP2[len(MP2) - 1]
+                    MP2 = MP2[1]
+                    # E(MP2)=       -76.2919350192  ACTUALLY, THIS IS THE SCS-MP2 ENERGY
                 elif 'E(0)=' in line:
                     HF  = line.split()
                     HF  = HF[len(HF) - 1]
@@ -65,7 +66,6 @@ def energy_gms(path, File, energy):
     sysDict["MP2" ] = MP2
 
     energy.append(sysDict)
-
     return energy
 
 
