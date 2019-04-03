@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+from general import find_files
+from pprint import noFiles
 from utils import (get_files, 
                    read_file, 
                    write_csv_from_nested,
@@ -41,6 +44,15 @@ def is_fluorescence(file):
 
 def get_fluorescence_logs():
     files = get_files('.', ('log', 'out'))
+    # path = '.'
+    # level = False # all levels
+    # level = input('Number of subdirs [0-9]: ')
+    # file_pattern = ['.log', '.out'] 
+    # files        = find_files(path, level, file_pattern)
+    # if len(files) == 0:
+    #     noFiles()
+    # for path, file in files:   
+    #     print(path, file)
     return files
 
 
@@ -66,9 +78,19 @@ def user_choice():
 
 
 def update_dict_with_name(file, d):
-    name = file.split('/')[-1].rsplit('.')[0]
-    if name.endswith('equil'): # lose -equil
-        name = name[:-6]
+    file = file.replace('./', '')
+    *path, f = file.split('/')
+    f = f.split('.')[0] # lose file extension
+    filepath = path + [f]
+    name = None 
+    # if uv_vis or uv-vis in path, take the preceeding values
+    print(filepath)
+    for ind, val in enumerate(filepath):
+        if ('uv_vis' in val or 'uv-vis' in val) and 'init' not in val:
+            name = '/'.join(filepath[:ind])
+    if name is None:
+        name = '/'.join(filepath) 
+    print(name)
     if name not in d:
         d[name] = {}
     return d, name
@@ -147,8 +169,8 @@ def transform(res):
 
 def get_fluorescence_data():
     write_data = print_data(write_csv_from_nested)
-    cutoff = user_choice()
     files = get_fluorescence_logs()
+    cutoff = user_choice()
     data = grep_data(cutoff, files)
     data = transform(data)
     write_data(data, col_names = ['config', 'root', 'iteration', 'wavelength (nm)', 'intensity (a.u.)'])
