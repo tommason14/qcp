@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 from general import find_files
 from pprint import noFiles
 from utils import (get_files, 
@@ -84,13 +85,11 @@ def update_dict_with_name(file, d):
     filepath = path + [f]
     name = None 
     # if uv_vis or uv-vis in path, take the preceeding values
-    print(filepath)
     for ind, val in enumerate(filepath):
         if ('uv_vis' in val or 'uv-vis' in val) and 'init' not in val:
             name = '/'.join(filepath[:ind])
     if name is None:
         name = '/'.join(filepath) 
-    print(name)
     if name not in d:
         d[name] = {}
     return d, name
