@@ -19,34 +19,45 @@ def comp_tasks(task, path, filename, jobfile):
     if task == "1":
         from genJob  import g09, gms, psi, fmo, orc
 
-        fmoC         = False
-        level        = False                   # NO LEVELS
-
+        # fmoC         = False
+        # level        = False                   # NO LEVELS
+        # if not Files:
+            # file_pattern = ['.xyz']            # FILES TO CHECK
+            # Files        = find_files(path, level, file_pattern)
+            # if len(Files) == 0:
+                # noFiles()
+        
+        # RECURSIVE FILE CREATION
         if not Files:
-            file_pattern = ['.xyz']            # FILES TO CHECK
+            level        = False                   # ALL LEVELS
+            level        = input("Number of subdirs [0-9]: ")
+            file_pattern = ['.xyz']        # FILES TO CHECK
             Files        = find_files(path, level, file_pattern)
             if len(Files) == 0:
                 noFiles()
 
-        # CHECK IF ANY TEMPLATE FILES ARE FMO FOR CORRECT FRAGMENTATION
-        for template in os.listdir(path):
-            if template.endswith('template'):
-                with open(template, 'r+') as f:
-                    for line in f:
-                        if '$FMO' in line:
-                            fmoC = True
-
-        # CHECK IF JOB TEMPLATE
-        jobTemp = False
-
-        if jobfile:
-            jobTemp = open(path + jobfile, 'r+').read()
-
-        elif os.path.isfile(path + 'template.job'):
-            jobTemp = open(path + 'template.job', 'r+').read()
-
-        # SEARCH FILES
         for path, File in Files:
+            
+            # CHECK IF ANY TEMPLATE FILES ARE FMO FOR CORRECT FRAGMENTATION
+            fmoC = False
+            for template in os.listdir(path):
+                if template.endswith('template'):
+                    with open(template, 'r+') as f:
+                        for line in f:
+                            if '$FMO' in line:
+                                fmoC = True
+
+            # CHECK IF JOB TEMPLATE
+            jobTemp = False
+
+            if jobfile:
+                jobTemp = open(path + jobfile, 'r+').read()
+
+            elif os.path.isfile(path + 'template.job'):
+                jobTemp = open(path + 'template.job', 'r+').read()
+
+            # SEARCH FILES
+        # for path, File in Files:
             print('-'*40)
             file_print(path, File, "Using")
             # ONLY HAPPEN ONCE FOR EACH XYZ

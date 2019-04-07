@@ -291,14 +291,14 @@ def deleteJob():
                 toDel_list.append(jobD['id'])
 
         # DELETE
-        toDel = input("Are you sure? y/n ")
+        toDel = input("Are you sure? [y/n] ")
         if toDel == 'y':
             for ID in toDel_list:
                 if hw is 'rjn' or hw is 'gai':
                     sp.call("qdel "  + ID, shell=True)
                     print("Removed " + ID + " from queue")
 
-                elif hw is 'mgs' or hw is 'mas' or hw is 'mon':
+                elif hw is 'mgs' or hw is 'mas' or hw is 'mon' or hw is 'stm':
                     sp.call("scancel "  + ID, shell=True)
                     print("Removed "    + ID + " from queue")
         else:

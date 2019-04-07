@@ -8,17 +8,20 @@ def job_replace(name, jobTemp):
     match_b4_chk = re.compile('([^\s=]*)\.chk')
     match_b4_log = re.compile('([^\s=]*)\.log')
     match_b4_out = re.compile('([^\s=]*)\.out')
+    match_b4_err = re.compile('([^\s=]*)\.err')
 
     match_b4_inp  = match_b4_inp.findall(jobTemp)  # TURN OBJECT TO STRING
     match_b4_chk  = match_b4_chk.findall(jobTemp)  # TURN OBJECT TO STRING
     match_b4_log  = match_b4_log.findall(jobTemp)  # TURN OBJECT TO STRING
     match_b4_out  = match_b4_out.findall(jobTemp)  # TURN OBJECT TO STRING
+    match_b4_err  = match_b4_err.findall(jobTemp)  # TURN OBJECT TO STRING
 
     swapDict = {
             '.inp' : match_b4_inp,
             '.chk' : match_b4_chk,
             '.log' : match_b4_log,
             '.out' : match_b4_out,
+            '.err' : match_b4_err,
             }
 
     for match, matches in swapDict.items():
