@@ -219,11 +219,14 @@ def psi_check_spec(path, File):
 ### GET XYZ DATA FROM .xyz
 def xyzPull(path, File):
     import re
-
+    import sys
     coords = []
 
     with open(path + File, 'r') as f:
         for num, line in enumerate(f):
+            if num == 1:
+                if line is not '\n':
+                    sys.exit('Error: Incorrect xyz format') 
             if re.search('[A-Z]\s*', line) and num > 1:
                 # MAKE SECOND CHARACTER LOWER CASE
                 spl_line = line.split()
