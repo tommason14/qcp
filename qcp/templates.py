@@ -105,6 +105,19 @@ def gms_masJob(name):
              "rungms.m3 " + name + ".inp 00 $SLURM_NTASKS > " + name + ".log"]
     return lines
 
+def gms_monJob(name):
+    lines = ["#!/bin/bash\n",
+             "#SBATCH --qos=partner\n"
+             "#SBATCH --job-name=" + name + "\n",
+             "#SBATCH --time=24:00:00\n",
+             "#SBATCH --ntasks=16\n",
+             "#SBATCH --tasks-per-node=16\n",
+             "#SBATCH --cpus-per-task=1\n",
+             "#SBATCH --mem=32G\n\n",
+             "module load gamess/16srs1-v2\n\n",
+             "rungms.monarch " + name + ".inp 00 $SLURM_NTASKS > " + name + ".log"]
+    return lines
+
 def gms_mgsJob(name):
     lines = ["#!/bin/bash --login\n",
     "#SBATCH --nodes=8\n",
@@ -221,7 +234,27 @@ def fmo_gaiJob(name):
     "rungms " + name + ".inp 00 1 $NSLOTS > " + name + ".out"]
     return lines
 
-
+def fmo_monJob(name, nfrags, mwords, ddi):
+    cpus = memFmo(nfrags, 'mon', mwords, ddi)
+    mem = str(int(cpus) * 2) #2GB nodes
+    time = '48:00:00'
+    # impose a limit of 2 nodes max?
+    # increase time to account for fewer cores
+    # if int(cpus) > 32:
+        # cpus = '32'
+        # mem  = '64'
+        # time = '96:00:00'
+    lines = ["#!/bin/bash\n",
+             "#SBATCH --qos=partner\n"
+             "#SBATCH --job-name=" + name + "\n",      
+             "#SBATCH --time=" + time + "\n",
+             "#SBATCH --ntasks=" + cpus + "\n",
+             "#SBATCH --tasks-per-node=16\n",
+             "#SBATCH --cpus-per-task=1\n",
+             "#SBATCH --mem=" + mem + "G\n\n",
+             "module load gamess/16srs1-v2\n\n",
+             "rungms.monarch " + name + ".inp 00 $SLURM_NTASKS > " + name + ".log"]
+    return lines
 
 
 ### USES MWORDS, MEMDDI AND HARDWARE TO DETERMINE PARAMS
@@ -323,7 +356,21 @@ def memFmo(nfrags, hw, mwords, ddi):
                 + "is > than the 4GB CPUs - consider <400 total per CPU")
         return str(cpus)
 
-
+    elif hw == 'mon':
+        cpuPerNode = 16
+        cpus       = nfrags * cpuPerNode
+        mem        = cpus   * 2
+        if not ddi:
+            gbsPerCpu = mwords * 8/1024
+            if gbsPerCpu > 2:
+                print("The amount of mwords in your template "\
+                + "is > than the 2GB cpus - consider <256")
+        else:
+            gbsPerCpu = (mwords + ddi/cpus) * 8/1024
+            if gbsPerCpu > 2:
+                print("The amount of mwords & ddi in your template "\
+                + "is > than the 2GB CPUs - consider <256 total per CPU")
+        return str(cpus)
 
 
 ### UNUSED ----------------------------------------------

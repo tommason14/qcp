@@ -155,6 +155,7 @@ def gms(path, File, template, sysData, jobTemp):
     from templates  import gms_mgsJob
     from templates  import gms_gaiJob
     from templates  import gms_masJob
+    from templates  import gms_monJob
     from templates  import gms_stmJob
     from write      import write_gmsInp
     from write      import write_job
@@ -231,6 +232,8 @@ def gms(path, File, template, sysData, jobTemp):
             lines = gms_gaiJob(name)
         elif hw == 'mas':
             lines = gms_masJob(name)
+        elif hw == 'mon':
+            lines = gms_monJob(name)
         elif hw == 'stm':
             lines = gms_stmJob(name)
 
@@ -311,9 +314,11 @@ def fmo(path, File, template, sysData, jobTemp):
     from templates  import fmo_mgsJob
     from templates  import fmo_stmJob
     from templates  import fmo_gaiJob
+    from templates  import fmo_monJob
     from templates  import gms_rjnJob
     from templates  import gms_mgsJob
     from templates  import gms_masJob
+    from templates  import gms_monJob
     from templates  import gms_gaiJob
     from templates  import gms_stmJob
     from tempInp    import fmo_ions
@@ -531,6 +536,8 @@ def fmo(path, File, template, sysData, jobTemp):
                     lines = gms_gaiJob(name + '-'+ ion)
                 elif hw == 'mas':
                     lines = gms_masJob(name + '-'+ ion)
+                elif hw == 'mon':
+                    lines = gms_monJob(name + '-'+ ion)
                 elif hw == 'stm':
                     lines = gms_stmJob(name + '-'+ ion)
 
@@ -554,6 +561,8 @@ def fmo(path, File, template, sysData, jobTemp):
             lines = fmo_mgsJob(name, nfrags, memory, ddi)
         elif hw == 'stm':
             lines = fmo_stmJob(name, nfrags, memory, ddi)
+        elif hw == 'mon':
+            lines = fmo_monJob(name, nfrags, memory, ddi)
         elif hw == 'gai':
             lines = fmo_gaiJob(name)#, nfrags, memory, ddi)
         elif hw == 'mas':
