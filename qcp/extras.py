@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+
+from general import find_files
+from pprint import noFiles
 from utils import (get_files, 
                    read_file, 
                    write_csv_from_nested,
@@ -9,13 +13,27 @@ from utils import (get_files,
 def print_data(f):
     def inner(*args, **kwargs):
         # know we have a col_names list
-        print(f"{'Config':^30} | {'Root':^15} | {'Iteration':^9} | {'Wavelength (nm)':>15} | {'Intensity (au)':>15}")
-        print('-'*96)
+        # find max lengh of filepath for pretty printing
+        data = []
+        max_filename_length = 0
         for a in args:
             if isinstance(a, list):
                 for line in a:
+                    data.append(line)
                     config, root, iteration, wavelength, intensity = line
-                    print(f"{config:^30} | {root:^15} | {iteration:^9} | {wavelength:^15} | {intensity:^15}")
+                    if len(config) > max_filename_length:
+                        max_filename_length = len(config)
+        # add some padding
+        config_length = max_filename_length + 4
+        boxsize = config_length + 15 + 9 + 15 + 15 + 14 # 12 is space between each column 
+        print('+' +  '-' * boxsize + '+')
+        print("| {:^{}} | {:^{}} | {:^{}} | {:^{}}| {:^{}} |".format('Config', config_length, 'Root', 15, 'Iteration', 9, 'Wavelength (nm)', 16, 'Intensity (au)', 15))
+        print('|' + '-' * boxsize + '|')
+        
+        for line in data: 
+            config, root, iteration, wavelength, intensity = line
+            print("| {:^{}} | {:^{}} | {:^{}} | {:^{}}| {:^{}} |".format(config, config_length, root, 15, iteration, 9, wavelength, 16, intensity, 15))
+        print('+' +  '-' * boxsize + '+')
         return f(*args, **kwargs)
     return inner
 
@@ -41,6 +59,20 @@ def is_fluorescence(file):
 
 def get_fluorescence_logs():
     files = get_files('.', ('log', 'out'))
+    # remove f- files from qcp results output
+    for file in files:
+        if 'f-' in file:
+            files.remove(file)
+
+    # path = '.'
+    # level = False # all levels
+    # level = input('Number of subdirs [0-9]: ')
+    # file_pattern = ['.log', '.out'] 
+    # files        = find_files(path, level, file_pattern)
+    # if len(files) == 0:
+    #     noFiles()
+    # for path, file in files:   
+    #     print(path, file)
     return files
 
 
@@ -66,9 +98,17 @@ def user_choice():
 
 
 def update_dict_with_name(file, d):
-    name = file.split('/')[-1].rsplit('.')[0]
-    if name.endswith('equil'): # lose -equil
-        name = name[:-6]
+    file = file.replace('./', '')
+    *path, f = file.split('/')
+    f = f.split('.')[0] # lose file extension
+    filepath = path + [f]
+    name = None 
+    # if uv_vis or uv-vis in path, take the preceeding values
+    for ind, val in enumerate(filepath):
+        if ('uv_vis' in val or 'uv-vis' in val) and 'init' not in val:
+            name = '/'.join(filepath[:ind])
+    if name is None:
+        name = '/'.join(filepath) 
     if name not in d:
         d[name] = {}
     return d, name
@@ -127,7 +167,7 @@ def grep_data(cutoff, files):
     res = {}
     for file in files:
         if is_gaussian(file) and is_fluorescence(file):
-            print(f"Pulling from {file}")
+            #print(f"Pulling from {file}")
             res, name = update_dict_with_name(file, res)
             res, root = find_root(file, res, name)
             res = find_spectral_data(file, res, name, root, cutoff)   
@@ -147,8 +187,8 @@ def transform(res):
 
 def get_fluorescence_data():
     write_data = print_data(write_csv_from_nested)
-    cutoff = user_choice()
     files = get_fluorescence_logs()
+    cutoff = user_choice()
     data = grep_data(cutoff, files)
     data = transform(data)
     write_data(data, col_names = ['config', 'root', 'iteration', 'wavelength (nm)', 'intensity (a.u.)'])

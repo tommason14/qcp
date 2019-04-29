@@ -219,7 +219,7 @@ def psi_check_spec(path, File):
 ### GET XYZ DATA FROM .xyz
 def xyzPull(path, File):
     import re
-
+    import sys
     coords = []
 
     with open(path + File, 'r') as f:
