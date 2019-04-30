@@ -2,6 +2,20 @@
 
 ### PSI4 JOB SCRIPT ONE NODE
 
+def psi_stmJob(name):
+    lines = ["#!/bin/bash\n",
+             "#SBATCH -J " + name + " \n", 
+             "#SBATCH -e " + name + ".err\n",  
+             "#SBATCH -p normal\n",         
+             "#SBATCH -N 1\n",              
+             "#SBATCH -n 1\n",              
+             "#SBATCH -c 16\n",
+             "#SBATCH -t 03:00:00\n\n",       
+             "module load psi4\n", # would need changing for others
+             "psi4 " + name + ".inp " + name + ".log\n",
+             "find . -empty -delete"] # slurm outputs slurm-[0-9]*.out by default, but psi4 doesn't write to it 
+    return lines
+
 def psi_rjnJob(name):
     # PSI4 MEMORY IN INP NEEDS >>> MEM IN JOB
     # CPUS FROM MEMORY
