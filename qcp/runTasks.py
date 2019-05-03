@@ -86,6 +86,8 @@ def comp_tasks(task, path, filename, jobfile):
     elif task == "2":
         from energy import energy_g09, energy_gms, energy_psi
         from write  import write_energy
+        from os import getcwd
+        cwd = getcwd()
         energy       = []                           # TO PRINT AT END
         if not Files:
             level        = 100                      # ALL
@@ -104,12 +106,12 @@ def comp_tasks(task, path, filename, jobfile):
                     energy = energy_g09(path, File, energy)
                 elif soft == 'psi':
                     energy = energy_psi(path, File, energy)
-        mkfi = input("Write to file? (y/n) [n]")
+        mkfi = input("Write to file? (y/n) [n] ")
         if mkfi == 'n' or mkfi == '':
             e_print(energy)
         elif mkfi == 'y':
             e_print(energy)
-            write_energy(path, energy)
+            write_energy(cwd, energy)
 
 
     ### SORT LOG FILES
