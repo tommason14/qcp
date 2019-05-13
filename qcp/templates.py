@@ -134,13 +134,13 @@ def gms_monJob(name):
 
 def gms_mgsJob(name):
     lines = ["#!/bin/bash --login\n",
-    "#SBATCH --nodes=8\n",
+    "#SBATCH --nodes=1\n",
     "#SBATCH --account=pawsey0197\n",
     "#SBATCH --time=24:00:00\n",
+    "#SBATCH --output=" + name + ".log\n", 
     "#SBATCH --export=NONE\n\n",
-    "module use /group/pawsey0197/software/cle52up04/modulefiles\n",
-    "module load gamess/2016\n",
-    "rungms " + name + ".inp 00 12 12"]
+    "export OMP_NUM_THREADS=1\n",
+    "/group/pawsey0197/software/cle60up05/apps/gamess_cray_build/rungms " + name + ".inp 00 24 24"]
     return lines
 
 def gms_stmJob(name):
@@ -207,7 +207,7 @@ def fmo_mgsJob(name, nfrags, mwords, ddi):
     "#SBATCH --nodes=" + str(nfrags) + "\n",
     "#SBATCH --account=pawsey0197\n",
     "#SBATCH --time=24:00:00\n",
-    "#SBATCH --output= " + name + ".log\n",
+    "#SBATCH --output=" + name + ".log\n",
     "#SBATCH --export=NONE\n\n",
     "export OMP_NUM_THREADS=1\n",
     "/group/pawsey0197/software/cle60up05/apps/gamess_cray_build/rungms " + name + ".inp 00 " + cpus + " 24"]
