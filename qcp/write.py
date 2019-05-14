@@ -45,7 +45,7 @@ def write_job(path, name, lines, cp = False):
 
 def write_energy(path, energy):
     import csv
-    with open(path + 'out_energies.csv', 'w') as csvfile:
+    with open(path + '/out_energies.csv', 'w') as csvfile:
          Write = csv.writer(csvfile, delimiter='|')
          ZP  = []
          MP2 = []

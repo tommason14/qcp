@@ -248,6 +248,7 @@ def psi(path, File, template, sysData, jobTemp):
     from supercomp  import host
     from templates  import psi_rjnJob
     from templates  import psi_gaiJob
+    from templates  import psi_stmJob
     from write      import write_inp
     from write      import write_job
 
@@ -298,6 +299,8 @@ def psi(path, File, template, sysData, jobTemp):
             lines = psi_rjnJob(name)
         elif hw == 'gai':
             lines = psi_gaiJob(name)
+        elif hw == 'stm':
+            lines = psi_stmJob(name)
 
     if lines:
         write_job(npath, name, lines)

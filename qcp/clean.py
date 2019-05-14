@@ -46,7 +46,7 @@ def sed(path):
                         linei = line
                         line  = line.replace(ii, jj)
                         print("Changed:", linei + "to     :", line)
-                    lines += line
+                lines += line
         open(File, 'w+').write(lines)
 
 

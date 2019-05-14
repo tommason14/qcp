@@ -141,6 +141,10 @@ def gms_log(path, File, spec):
                 err  = 'hes'
                 ext  = '_hesError'
                 break
+            elif "DUE TO TIME LIMIT" in line:
+                stat = 11
+                err  = 'time'
+                ext  = '_timeLimit'
             elif "ION OF GAMESS TERMINATED NORMA" in line:
                     stat = 7
                     ext  = '_eGeom'

@@ -2,6 +2,20 @@
 
 ### PSI4 JOB SCRIPT ONE NODE
 
+def psi_stmJob(name):
+    lines = ["#!/bin/bash\n",
+             "#SBATCH -J " + name + " \n", 
+             "#SBATCH -e " + name + ".err\n",  
+             "#SBATCH -p normal\n",         
+             "#SBATCH -N 1\n",              
+             "#SBATCH -n 1\n",              
+             "#SBATCH -c 16\n",
+             "#SBATCH -t 03:00:00\n\n",       
+             "module load psi4\n", # would need changing for others
+             "psi4 " + name + ".inp " + name + ".log\n",
+             "find . -empty -delete"] # slurm outputs slurm-[0-9]*.out by default, but psi4 doesn't write to it 
+    return lines
+
 def psi_rjnJob(name):
     # PSI4 MEMORY IN INP NEEDS >>> MEM IN JOB
     # CPUS FROM MEMORY
@@ -120,13 +134,13 @@ def gms_monJob(name):
 
 def gms_mgsJob(name):
     lines = ["#!/bin/bash --login\n",
-    "#SBATCH --nodes=8\n",
+    "#SBATCH --nodes=1\n",
     "#SBATCH --account=pawsey0197\n",
     "#SBATCH --time=24:00:00\n",
+    "#SBATCH --output=" + name + ".log\n", 
     "#SBATCH --export=NONE\n\n",
-    "module use /group/pawsey0197/software/cle52up04/modulefiles\n",
-    "module load gamess/2016\n",
-    "rungms " + name + ".inp 00 12 12"]
+    "export OMP_NUM_THREADS=1\n",
+    "/group/pawsey0197/software/cle60up05/apps/gamess_cray_build/rungms " + name + ".inp 00 24 24"]
     return lines
 
 def gms_stmJob(name):
@@ -193,7 +207,7 @@ def fmo_mgsJob(name, nfrags, mwords, ddi):
     "#SBATCH --nodes=" + str(nfrags) + "\n",
     "#SBATCH --account=pawsey0197\n",
     "#SBATCH --time=24:00:00\n",
-    "#SBATCH --output= " + name + ".log\n",
+    "#SBATCH --output=" + name + ".log\n",
     "#SBATCH --export=NONE\n\n",
     "export OMP_NUM_THREADS=1\n",
     "/group/pawsey0197/software/cle60up05/apps/gamess_cray_build/rungms " + name + ".inp 00 " + cpus + " 24"]
