@@ -1,8 +1,10 @@
 def e_print(energy):
     from operator import itemgetter
-
+    
     ZP  = []
     MP2 = []
+    MP2_opp = []
+
     for d in energy:
         if d["ZP"]:
             ZP.append(True)
@@ -38,6 +40,7 @@ def e_print(energy):
             print('{:40}{:6}{:17.15}{:17.15}   {}'.\
             format(d["File"], d["Type"], d["HF"], d["MP2"], d["Path"]))
         print('-' * 80)
+
     else:
         print('-' * 80)
         print('{:40}{:6}{:17.15}   {}'.\

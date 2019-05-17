@@ -153,9 +153,11 @@ def energy_psi(path, File, energy):
     from general import psi_check_spec
     from general import eof
 
-    HF      = ''
-    ZP      = ''
-    MP2     = ''
+    HF       = ''
+    ZP       = ''
+    MP2      = ''
+    MP2_opp  = ''
+    MP2_same = ''
     sysDict = {}
 
     spec = psi_check_spec(path, File)
@@ -176,7 +178,12 @@ def energy_psi(path, File, energy):
             elif 'Reference Energy' in line:
                 HF  = line.split()
                 HF  = HF[len(HF) - 2]
-
+            elif "Same-Spin Energy          =" in line:
+                MP2_same = line.split()
+                MP2_same = MP2_same[len(MP2_same) - 2]
+            elif "Opposite-Spin Energy      =" in line:
+                MP2_opp = line.split()
+                MP2_opp = MP2_same[len(MP2_opp) - 2]
     # FINDING ZP NOT INCLUDED
 
     # CREATE DICTIONARY OF FILE
@@ -186,6 +193,8 @@ def energy_psi(path, File, energy):
     sysDict["HF"  ] = HF
     sysDict["ZP"  ] = ZP
     sysDict["MP2" ] = MP2
+    sysDict["MP2_same"] = MP2_same
+    sysDict["MP2_opp"] = MP2_opp
 
     energy.append(sysDict)
 
