@@ -64,7 +64,9 @@ def energy_gms(path, File, energy):
     sysDict["HF"  ] = HF
     sysDict["ZP"  ] = ZP
     sysDict["MP2" ] = MP2
-
+    ### A bit hacky
+    sysDict["MP2_opp"] = ''
+    sysDict["MP2_same"] = ''
     energy.append(sysDict)
     return energy
 
@@ -141,7 +143,9 @@ def energy_g09(path, File, energy):
     sysDict["HF"  ] = HF
     sysDict["ZP"  ] = ZP
     sysDict["MP2" ] = MP2
-
+    ### A bit hacky
+    sysDict["MP2_opp"] = ''
+    sysDict["MP2_same"] = ''
     energy.append(sysDict)
 
     return energy
@@ -183,7 +187,7 @@ def energy_psi(path, File, energy):
                 MP2_same = MP2_same[len(MP2_same) - 2]
             elif "Opposite-Spin Energy      =" in line:
                 MP2_opp = line.split()
-                MP2_opp = MP2_same[len(MP2_opp) - 2]
+                MP2_opp = MP2_opp[len(MP2_opp) - 2]
     # FINDING ZP NOT INCLUDED
 
     # CREATE DICTIONARY OF FILE

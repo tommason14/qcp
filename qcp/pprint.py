@@ -10,6 +10,8 @@ def e_print(energy):
             ZP.append(True)
         if d["MP2"]:
             MP2.append(True)
+        if d["MP2_opp"]:
+            MP2_opp.append(True)
     energy = sorted(energy, key=itemgetter('Path', 'File'))
     if True in ZP and True in MP2:
         print('-' * 80)
@@ -30,6 +32,16 @@ def e_print(energy):
             print('{:40}{:6}{:17.15}{:9}   {}'.\
             format(d["File"], d["Type"], d["HF"], d["ZP"], d["Path"]))
         print('-' * 80)
+
+    elif True in MP2 and True in MP2_opp:
+        print('-' * 90)
+        print('{:40}{:6}{:10.9}{:10.9}{:10.9}{:10.9}   {}'.\
+        format('File', 'Type', 'HF/DFT', 'MP2/SRS', 'MP2_opp', 'MP2_same', 'Path'))
+        print('-' * 90)
+        for d in energy:
+            print('{:40}{:6}{:10.9}{:10.9}{:10.9}{:10.9}   {}'.\
+            format(d["File"], d["Type"], d["HF"], d["MP2"], d["MP2_opp"], d["MP2_same"], d["Path"]))
+        print('-' * 90)
 
     elif True in MP2:
         print('-' * 80)
