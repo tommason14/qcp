@@ -109,6 +109,8 @@ def orc_rjnJob(name):
 def gms_masJob(name):
     lines = ["#!/bin/bash\n",
              "#SBATCH --account=sn29\n",
+             "#SBATCH --job-name=" + name + "\n",
+             "#SBATCH --error=" + name + ".err\n",
              "#SBATCH --time=06:00:00\n",
              "#SBATCH --ntasks=8\n",
              "#SBATCH --tasks-per-node=8\n",
@@ -123,6 +125,7 @@ def gms_monJob(name):
     lines = ["#!/bin/bash\n",
              "#SBATCH --qos=partner\n"
              "#SBATCH --job-name=" + name + "\n",
+             "#SBATCH --error=" + name + ".err\n",
              "#SBATCH --time=24:00:00\n",
              "#SBATCH --ntasks=16\n",
              "#SBATCH --tasks-per-node=16\n",
@@ -138,6 +141,7 @@ def gms_mgsJob(name):
     "#SBATCH --account=pawsey0197\n",
     "#SBATCH --time=24:00:00\n",
     "#SBATCH --output=" + name + ".log\n", 
+    "#SBATCH --error=" + name + ".err\n", 
     "#SBATCH --export=NONE\n\n",
     "export OMP_NUM_THREADS=1\n",
     "/group/pawsey0197/software/cle60up05/apps/gamess_cray_build/rungms " + name + ".inp 00 24 24"]
@@ -145,20 +149,19 @@ def gms_mgsJob(name):
 
 def gms_stmJob(name):
     lines = ["#!/bin/bash\n\n",
-    "#SBATCH -J " + name + "\n",      
-    "#SBATCH -o " + name + ".log\n",  
-    "#SBATCH -e " + name + ".e%j\n",        
-    "#SBATCH -p skx-normal\n",     
-    "#SBATCH -N 1\n",          
-    "#SBATCH --tasks-per-node=22\n",
-    "#SBATCH -t 24:00:00\n",        
-    "#SBATCH --mail-user=thomas.mason1+stampede@monash.edu\n",
-    "#SBATCH --mail-type=all\n\n",  
+    "#SBATCH -J " + name + "\n",
+    "#SBATCH -o " + name + ".log\n",
+    "#SBATCH -e " + name + ".e%j\n",
+    "#SBATCH -p skx-normal\n",
+    "#SBATCH -N 1\n",
+    "#SBATCH -n 22\n",
+    "#SBATCH -c 1\n",
+    "#SBATCH -t 10:00:00\n\n",
     "module load intel/18.0.2\n",
-    "module load impi/18.0.2\n",
-    "module load my_gamess/2017.04.20.srs-magnus\n\n",
-    "export OMP_NUM_THREADS=1\n\n",
-    "rungms " + name + ".inp 00 22 22"]
+    "module load hdf5/1.10.4\n",
+    "module load my_gamess/srs-openmpi-v2\n\n",
+    "rungms.tom " + name + ".inp 00 $SLURM_NTASKS"]
+
     return lines
 
 def gms_gaiJob(name):
@@ -208,29 +211,31 @@ def fmo_mgsJob(name, nfrags, mwords, ddi):
     "#SBATCH --account=pawsey0197\n",
     "#SBATCH --time=24:00:00\n",
     "#SBATCH --output=" + name + ".log\n",
+    "#SBATCH --error=" + name + ".err\n", 
     "#SBATCH --export=NONE\n\n",
     "export OMP_NUM_THREADS=1\n",
     "/group/pawsey0197/software/cle60up05/apps/gamess_cray_build/rungms " + name + ".inp 00 " + cpus + " 24"]
     return lines
 
-# Gamess on Stampede assume 22 servers per node- otherwise overclock memory requirements (48 available, and used on gaussian)
+# Gamess on Stampede assume 22 servers per node- otherwise overclock memory requirements (48
+# available on a two-thread nodes, and used on gaussian)
 def fmo_stmJob(name, nfrags, mwords, ddi):
     cpus = memFmo(nfrags, 'stm', mwords, ddi)
-    lines = ["#!/bin/bash\n\n",
-    "#SBATCH -J " + name + "\n",      
-    "#SBATCH -o " + name + ".log\n",  
-    "#SBATCH -e " + name + ".e%j\n",        
-    "#SBATCH -p skx-normal\n",     
-    "#SBATCH -N " + str(int(float(cpus) / 22)) + "\n",          
-    "#SBATCH --tasks-per-node=22\n",
-    "#SBATCH -t 24:00:00\n",        
-    "#SBATCH --mail-user=thomas.mason1+stampede@monash.edu\n",
-    "#SBATCH --mail-type=all\n\n",  
+    nnodes = str(int(float(cpus) / 22))
+    lines = ["#!/bin/bash\n",
+    "#SBATCH -J " + name + "\n",
+    "#SBATCH -o " + name + ".log\n",
+    "#SBATCH -e " + name + ".e%j\n",
+    "#SBATCH -p skx-normal\n",
+    "#SBATCH -N " + nnodes + "\n",
+    "#SBATCH -n " + cpus + "\n",
+    "#SBATCH -c 1\n",
+    "#SBATCH -t 24:00:00\n\n",
     "module load intel/18.0.2\n",
-    "module load impi/18.0.2\n",
-    "module load my_gamess/2017.04.20.srs-magnus\n\n",
-    "export OMP_NUM_THREADS=1\n\n",
-    "rungms " + name + ".inp 00 " + cpus  + " 22"]
+    "module load hdf5/1.10.4\n",
+    "module load my_gamess/srs-openmpi-v2\n\n",
+    "rungms.tom " + name + ".inp 00 $SLURM_NTASKS"]
+
     return lines
 
 ### FMO ON GAIA JOB SCRIPT //
@@ -261,6 +266,7 @@ def fmo_monJob(name, nfrags, mwords, ddi):
     lines = ["#!/bin/bash\n",
              "#SBATCH --qos=partner\n"
              "#SBATCH --job-name=" + name + "\n",      
+             "#SBATCH --error=" + name + ".err\n",
              "#SBATCH --time=" + time + "\n",
              "#SBATCH --ntasks=" + cpus + "\n",
              "#SBATCH --tasks-per-node=16\n",
@@ -270,6 +276,23 @@ def fmo_monJob(name, nfrags, mwords, ddi):
              "rungms.monarch " + name + ".inp 00 $SLURM_NTASKS > " + name + ".log"]
     return lines
 
+def fmo_masJob(name, nfrags, mwords, ddi):
+    cpus = memFmo(nfrags, 'mas', mwords, ddi)
+    mem = str(int(cpus) * 2) #2GB nodes
+    time = '48:00:00'
+    lines = ["#!/bin/bash\n",
+             "#SBATCH --account=sn29\n",
+             "#SBATCH --job-name=" + name + "\n",
+             "#SBATCH --error=" + name + ".err\n",
+             "#SBATCH --time=" + time + "\n",
+             "#SBATCH --ntasks=" + cpus + "\n",
+             "#SBATCH --tasks-per-node=16\n",
+             "#SBATCH --cpus-per-task=1\n",
+             "#SBATCH --mem=" + mem + "G\n\n",
+             'export PROJECT="sn29"\n\n',
+             "module load gamess/16srs1-v2\n\n",
+             "rungms.m3 " + name + ".inp 00 $SLURM_NTASKS > " + name + ".log"]
+    return lines
 
 ### USES MWORDS, MEMDDI AND HARDWARE TO DETERMINE PARAMS
 def memFmo(nfrags, hw, mwords, ddi):
@@ -370,7 +393,7 @@ def memFmo(nfrags, hw, mwords, ddi):
                 + "is > than the 4GB CPUs - consider <400 total per CPU")
         return str(cpus)
 
-    elif hw == 'mon':
+    elif hw == 'mon' or hw == 'mas':
         cpuPerNode = 16
         cpus       = nfrags * cpuPerNode
         mem        = cpus   * 2
