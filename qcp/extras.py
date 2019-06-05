@@ -16,6 +16,7 @@ def print_data(f):
         # find max lengh of filepath for pretty printing
         data = []
         max_filename_length = 0
+        max_root_length = 0
         for a in args:
             if isinstance(a, list):
                 for line in a:
@@ -23,16 +24,19 @@ def print_data(f):
                     config, root, iteration, wavelength, intensity = line
                     if len(config) > max_filename_length:
                         max_filename_length = len(config)
+                    if len(root) > max_root_length:
+                        max_root_length = len(root)
         # add some padding
         config_length = max_filename_length + 4
-        boxsize = config_length + 15 + 9 + 15 + 15 + 14 # 12 is space between each column 
+        root_length = max_root_length + 4
+        boxsize = config_length + root_length + 9 + 15 + 15 + 14 # 12 is space between each column 
         print('+' +  '-' * boxsize + '+')
-        print("| {:^{}} | {:^{}} | {:^{}} | {:^{}}| {:^{}} |".format('Config', config_length, 'Root', 15, 'Iteration', 9, 'Wavelength (nm)', 16, 'Intensity (au)', 15))
+        print("| {:^{}} | {:^{}} | {:^{}} | {:^{}}| {:^{}} |".format('Config', config_length, 'Root', root_length, 'Iteration', 9, 'Wavelength (nm)', 16, 'Intensity (au)', 15))
         print('|' + '-' * boxsize + '|')
         
         for line in data: 
             config, root, iteration, wavelength, intensity = line
-            print("| {:^{}} | {:^{}} | {:^{}} | {:^{}}| {:^{}} |".format(config, config_length, root, 15, iteration, 9, wavelength, 16, intensity, 15))
+            print("| {:^{}} | {:^{}} | {:^{}} | {:^{}}| {:^{}} |".format(config, config_length, root, root_length, iteration, 9, wavelength, 16, intensity, 15))
         print('+' +  '-' * boxsize + '+')
         return f(*args, **kwargs)
     return inner
@@ -122,18 +126,37 @@ def find_root(file, d, name):
             for i, val in enumerate(line):
                 if 'root=' in val:
                     root = val.split('=')[-1][:-1]
-    if root is None:
+    if root is None: # keep track of lines
         root = 'initial_spectra'
     d[name][root] = {}
     d[name][root]['peaks'] = {}
     return d, root
 
+def reassign_root_of_initial_spectra(d, name, root, iteration, intensity, wavelength, number, cutoff):
+    """
+    If the file being searched is run to find the 
+    roots to take forward, need to know the roots!
+    
+    This function reassigns the value in the 'root'
+    column to reflect this
+    """
+    if 'initial_spectra' in d[name]:
+        d[name].pop(root)
+    new_key = f'initial spectra: root {number + 1}' 
+    if new_key not in d[name]:
+        d[name][new_key] = {}
+        d[name][new_key]['peaks'] = {}
+        if iteration not in d[name][new_key]['peaks']:
+            d[name][new_key]['peaks'][iteration] = []
+    if intensity > cutoff:
+        d[name][new_key]['peaks'][iteration].append((wavelength, intensity))
+    return d
 
 def find_spectral_data(file, d, name, root, cutoff):
     iteration = 0   
     # faster to collect lines first and parse after, probably
     lines = [line for line in read_file(file) if 'Excited State' in line]        
-    for line in lines:
+    for number, line in enumerate(lines):
         intensity = None
         wavelength = None
         if ' 1: ' in line: #space important, or 11: could be picked up
@@ -145,8 +168,11 @@ def find_spectral_data(file, d, name, root, cutoff):
                 wavelength = float(line[index - 1])
             if 'f=' in item:
                 intensity = float(item.split('=')[1])
-        if intensity > cutoff:
-            d[name][root]['peaks'][iteration].append((wavelength, intensity))
+        if root == 'initial_spectra':
+            d = reassign_root_of_initial_spectra(d, name, root, iteration, intensity, wavelength, number, cutoff)
+        else:
+            if intensity > cutoff:
+                d[name][root]['peaks'][iteration].append((wavelength, intensity))
     return d
 
 def grep_data(cutoff, files):
@@ -167,7 +193,6 @@ def grep_data(cutoff, files):
     res = {}
     for file in files:
         if is_gaussian(file) and is_fluorescence(file):
-            #print(f"Pulling from {file}")
             res, name = update_dict_with_name(file, res)
             res, root = find_root(file, res, name)
             res = find_spectral_data(file, res, name, root, cutoff)   
@@ -177,8 +202,8 @@ def grep_data(cutoff, files):
 def transform(res):
     """ Transforms dictionary to a list of lists """
     flattened = []
-    for name in res:
-        for root in res[name]:
+    for name in sorted(res):
+        for root in sorted(res[name]):
             for iteration in res[name][root]['peaks']:
                 for peak in res[name][root]['peaks'][iteration]:
                     wave, intensity = peak
