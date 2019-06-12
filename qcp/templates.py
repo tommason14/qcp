@@ -111,11 +111,12 @@ def gms_masJob(name):
              "#SBATCH --account=sn29\n",
              "#SBATCH --job-name=" + name + "\n",
              "#SBATCH --error=" + name + ".err\n",
-             "#SBATCH --time=06:00:00\n",
-             "#SBATCH --ntasks=8\n",
-             "#SBATCH --tasks-per-node=8\n",
+             "#SBATCH --time=24:00:00\n",
+             "#SBATCH --ntasks=16\n",
+             "#SBATCH --tasks-per-node=16\n",
              "#SBATCH --cpus-per-task=1\n",
-             "#SBATCH --mem=80G\n\n",
+             "#SBATCH --mem=32G\n",
+             "#SBATCH --partition=m3i\n\n",
              'export PROJECT="sn29"\n\n',
              "module load gamess/16srs1-v2\n\n",
              "rungms.m3 " + name + ".inp 00 $SLURM_NTASKS > " + name + ".log"]
@@ -159,7 +160,7 @@ def gms_stmJob(name):
     "#SBATCH -t 10:00:00\n\n",
     "module load intel/18.0.2\n",
     "module load hdf5/1.10.4\n",
-    "module load my_gamess/srs-openmpi-v2\n\n",
+    "module load my_gamess/srs-avx-512\n\n",
     "rungms.tom " + name + ".inp 00 $SLURM_NTASKS"]
 
     return lines
@@ -233,7 +234,7 @@ def fmo_stmJob(name, nfrags, mwords, ddi):
     "#SBATCH -t 24:00:00\n\n",
     "module load intel/18.0.2\n",
     "module load hdf5/1.10.4\n",
-    "module load my_gamess/srs-openmpi-v2\n\n",
+    "module load my_gamess/srs-avx-512\n\n",
     "rungms.tom " + name + ".inp 00 $SLURM_NTASKS"]
 
     return lines
@@ -288,7 +289,8 @@ def fmo_masJob(name, nfrags, mwords, ddi):
              "#SBATCH --ntasks=" + cpus + "\n",
              "#SBATCH --tasks-per-node=16\n",
              "#SBATCH --cpus-per-task=1\n",
-             "#SBATCH --mem=" + mem + "G\n\n",
+             "#SBATCH --mem=" + mem + "G\n",
+             "#SBATCH --partition=m3i\n\n",
              'export PROJECT="sn29"\n\n',
              "module load gamess/16srs1-v2\n\n",
              "rungms.m3 " + name + ".inp 00 $SLURM_NTASKS > " + name + ".log"]

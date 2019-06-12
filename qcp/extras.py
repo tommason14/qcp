@@ -203,7 +203,7 @@ def transform(res):
     """ Transforms dictionary to a list of lists """
     flattened = []
     for name in sorted(res):
-        for root in sorted(res[name]):
+        for root in res[name]:
             for iteration in res[name][root]['peaks']:
                 for peak in res[name][root]['peaks'][iteration]:
                     wave, intensity = peak

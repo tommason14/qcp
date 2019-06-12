@@ -318,6 +318,7 @@ def fmo(path, File, template, sysData, jobTemp):
     from templates  import fmo_stmJob
     from templates  import fmo_gaiJob
     from templates  import fmo_monJob
+    from templates  import fmo_masJob
     from templates  import gms_rjnJob
     from templates  import gms_mgsJob
     from templates  import gms_masJob
@@ -566,10 +567,10 @@ def fmo(path, File, template, sysData, jobTemp):
             lines = fmo_stmJob(name, nfrags, memory, ddi)
         elif hw == 'mon':
             lines = fmo_monJob(name, nfrags, memory, ddi)
+        elif hw == 'mas':
+            lines = fmo_masJob(name, nfrags, memory, ddi)
         elif hw == 'gai':
             lines = fmo_gaiJob(name)#, nfrags, memory, ddi)
-        elif hw == 'mas':
-            lines = gms_masJob(name)
 
     if lines:
         write_job(npath, name, lines)
