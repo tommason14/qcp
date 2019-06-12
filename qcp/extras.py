@@ -106,13 +106,13 @@ def update_dict_with_name(file, d):
     *path, f = file.split('/')
     f = f.split('.')[0] # lose file extension
     filepath = path + [f]
-    name = None 
+    # name = None 
     # if uv_vis or uv-vis in path, take the preceeding values
-    for ind, val in enumerate(filepath):
-        if ('uv_vis' in val or 'uv-vis' in val) and 'init' not in val:
-            name = '/'.join(filepath[:ind])
-    if name is None:
-        name = '/'.join(filepath) 
+    # for ind, val in enumerate(filepath):
+        # if ('uv_vis' in val or 'uv-vis' in val) and 'init' not in val:
+            # name = '/'.join(filepath[:ind])
+    # if name is None:
+    name = '/'.join(filepath) 
     if name not in d:
         d[name] = {}
     return d, name
@@ -161,6 +161,11 @@ def find_spectral_data(file, d, name, root, cutoff):
         wavelength = None
         if ' 1: ' in line: #space important, or 11: could be picked up
             iteration += 1
+            # hack - should fix ###########
+            if root not in d[name]:
+                d[name][root] = {}
+                d[name][root]['peaks'] = {}
+            ###############################
             d[name][root]['peaks'][iteration] = []
         line = line.split()
         for index, item in enumerate(line):
@@ -169,7 +174,8 @@ def find_spectral_data(file, d, name, root, cutoff):
             if 'f=' in item:
                 intensity = float(item.split('=')[1])
         if root == 'initial_spectra':
-            d = reassign_root_of_initial_spectra(d, name, root, iteration, intensity, wavelength, number, cutoff)
+            d = reassign_root_of_initial_spectra(d, name, root, iteration, intensity, wavelength,
+number, cutoff)
         else:
             if intensity > cutoff:
                 d[name][root]['peaks'][iteration].append((wavelength, intensity))
@@ -203,7 +209,7 @@ def transform(res):
     """ Transforms dictionary to a list of lists """
     flattened = []
     for name in sorted(res):
-        for root in res[name]:
+        for root in sorted(res[name]):
             for iteration in res[name][root]['peaks']:
                 for peak in res[name][root]['peaks'][iteration]:
                     wave, intensity = peak
