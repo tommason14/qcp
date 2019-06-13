@@ -222,7 +222,7 @@ def get_fluorescence_data():
     cutoff = user_choice()
     data = grep_data(cutoff, files)
     data = transform(data)
-    write_data(data, col_names = ['config', 'root', 'iteration', 'wavelength (nm)', 'intensity (a.u.)'])
+    write_data(data, col_names = ['Config', 'Root', 'Iteration', 'Wavelength (nm)', 'Intensity (au)'])
 
 if __name__ == '__main__':
     main()

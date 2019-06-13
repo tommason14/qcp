@@ -76,10 +76,10 @@ def psi_masJob(name):
 def gms_rjnJob(name):
     # DOESN'T REQUIRE WHOLE NODE
     #mem, cpus, jobfs, wall = memFmo(nfrags, 'rjn', mwords, ddi)
-    mem   = '16'
-    cpus  = '8'
+    mem   = '64'
+    cpus  = '16'
     jobfs = '100'
-    wall  = '48:00:00'
+    wall  = '2:00:00'
     lines=["#!/bin/sh\n",
     "#PBS -P k96\n",
     "#PBS -l mem=" + mem + "gb\n",
