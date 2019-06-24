@@ -5,41 +5,39 @@ from pprint import noFiles
 from utils import (get_files, 
                    read_file, 
                    write_csv_from_nested,
-                   search_dict_recursively)
+                   search_dict_recursively,
+                   responsive_table)
 
-# decorator for the csv function to print data before writing
-# no capability to change original function
-# - used in too many places, lots of work to change
-def print_data(f):
-    def inner(*args, **kwargs):
-        # know we have a col_names list
-        # find max lengh of filepath for pretty printing
-        data = []
-        max_filename_length = 0
-        max_root_length = 0
-        for a in args:
-            if isinstance(a, list):
-                for line in a:
-                    data.append(line)
-                    config, root, iteration, wavelength, intensity = line
-                    if len(config) > max_filename_length:
-                        max_filename_length = len(config)
-                    if len(root) > max_root_length:
-                        max_root_length = len(root)
-        # add some padding
-        config_length = max_filename_length + 4
-        root_length = max_root_length + 4
-        boxsize = config_length + root_length + 9 + 15 + 15 + 14 # 12 is space between each column 
-        print('+' +  '-' * boxsize + '+')
-        print("| {:^{}} | {:^{}} | {:^{}} | {:^{}}| {:^{}} |".format('Config', config_length, 'Root', root_length, 'Iteration', 9, 'Wavelength (nm)', 16, 'Intensity (au)', 15))
-        print('|' + '-' * boxsize + '|')
-        
-        for line in data: 
-            config, root, iteration, wavelength, intensity = line
-            print("| {:^{}} | {:^{}} | {:^{}} | {:^{}}| {:^{}} |".format(config, config_length, root, root_length, iteration, 9, wavelength, 16, intensity, 15))
-        print('+' +  '-' * boxsize + '+')
-        return f(*args, **kwargs)
-    return inner
+# def print_data(f):
+#     def inner(*args, **kwargs):
+#         # know we have a col_names list
+#         # find max lengh of filepath for pretty printing
+#         data = []
+#         max_filename_length = 0
+#         max_root_length = 0
+#         for a in args:
+#             if isinstance(a, list):
+#                 for line in a:
+#                     data.append(line)
+#                     config, root, iteration, wavelength, intensity = line
+#                     if len(config) > max_filename_length:
+#                         max_filename_length = len(config)
+#                     if len(root) > max_root_length:
+#                         max_root_length = len(root)
+#         # add some padding
+#         config_length = max_filename_length + 4
+#         root_length = max_root_length + 4
+#         boxsize = config_length + root_length + 9 + 15 + 15 + 14 # 12 is space between each column 
+#         print('+' +  '-' * boxsize + '+')
+#         print("| {:^{}} | {:^{}} | {:^{}} | {:^{}}| {:^{}} |".format('Config', config_length, 'Root', root_length, 'Iteration', 9, 'Wavelength (nm)', 16, 'Intensity (au)', 15))
+#         print('|' + '-' * boxsize + '|')
+#         
+#         for line in data: 
+#             config, root, iteration, wavelength, intensity = line
+#             print("| {:^{}} | {:^{}} | {:^{}} | {:^{}}| {:^{}} |".format(config, config_length, root, root_length, iteration, 9, wavelength, 16, intensity, 15))
+#         print('+' +  '-' * boxsize + '+')
+#         return f(*args, **kwargs)
+#     return inner
 
 
 def is_gaussian(file):
@@ -132,7 +130,7 @@ def find_root(file, d, name):
     d[name][root]['peaks'] = {}
     return d, root
 
-def reassign_root_of_initial_spectra(d, name, root, iteration, intensity, wavelength, number, cutoff):
+def reassign_root_of_initial_spectra(d, name, root, iteration, oscillator_strength, intensity, wavelength, number, cutoff):
     """
     If the file being searched is run to find the 
     roots to take forward, need to know the roots!
@@ -149,7 +147,7 @@ def reassign_root_of_initial_spectra(d, name, root, iteration, intensity, wavele
         if iteration not in d[name][new_key]['peaks']:
             d[name][new_key]['peaks'][iteration] = []
     if intensity > cutoff:
-        d[name][new_key]['peaks'][iteration].append((wavelength, intensity))
+        d[name][new_key]['peaks'][iteration].append((oscillator_strength, wavelength, intensity))
     return d
 
 def find_spectral_data(file, d, name, root, cutoff):
@@ -173,12 +171,14 @@ def find_spectral_data(file, d, name, root, cutoff):
                 wavelength = float(line[index - 1])
             if 'f=' in item:
                 intensity = float(item.split('=')[1])
+            if 'eV' in item:
+                oscillator_strength = float(line[index - 1])
         if root == 'initial_spectra':
-            d = reassign_root_of_initial_spectra(d, name, root, iteration, intensity, wavelength,
+            d = reassign_root_of_initial_spectra(d, name, root, iteration, oscillator_strength, intensity, wavelength,
 number, cutoff)
         else:
             if intensity > cutoff:
-                d[name][root]['peaks'][iteration].append((wavelength, intensity))
+                d[name][root]['peaks'][iteration].append((oscillator_strength, wavelength, intensity))
     return d
 
 def grep_data(cutoff, files):
@@ -212,17 +212,20 @@ def transform(res):
         for root in sorted(res[name]):
             for iteration in res[name][root]['peaks']:
                 for peak in res[name][root]['peaks'][iteration]:
-                    wave, intensity = peak
-                    flattened.append([name, root, iteration, wave, intensity])
+                    strength, wave, intensity = peak
+                    flattened.append([name, root, iteration, strength, wave, intensity])
     return flattened
 
+def one_level_dict(res):
+    """ Transforms nested dict to dictionary only one level deep """
+
+
 def get_fluorescence_data():
-    write_data = print_data(write_csv_from_nested)
     files = get_fluorescence_logs()
     cutoff = user_choice()
     data = grep_data(cutoff, files)
     data = transform(data)
-    write_data(data, col_names = ['Config', 'Root', 'Iteration', 'Wavelength (nm)', 'Intensity (au)'])
+    write_csv_from_nested(data, col_names = ['Config', 'Root', 'Iteration', 'Oscillator Strength (eV)', 'Wavelength (nm)', 'Intensity (au)'])
 
 if __name__ == '__main__':
     main()

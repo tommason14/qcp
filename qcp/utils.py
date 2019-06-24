@@ -222,3 +222,58 @@ def assign_molecules_from_dict_keys(data):
         data[key]['cation'] = cation
         data[key]['anion'] = anion
     return data
+
+def responsive_table(data, strings, min_width):
+    """
+    Returns a table that is reponsive in size to every column.
+    Requires a dictionary to be passed in, with the keys referring to
+    the headers of the table.
+    Also pass in the number of each column that should be a string, starting
+    from 1.
+
+    Usage:
+        >>> d = {'col1': [1,2,3,4],
+                 'col2': ['One', 'Two', 'Three', 'Four']}
+        >>> responsive_table(d, strings = [2])
+
+    Can also give a minimum width, defaults to 13 spaces
+        >>> responsive_table(d, strings = [2], min_width = 5)
+    """
+    num_cols = len(data.keys())
+    content = zip(*[data[key] for key in data.keys()]) # dict values into list of lists
+    # unknown number of arguments
+    max_sizes = {}
+    for k, v in data.items():
+        max_sizes[k] = len(max([str(val) for val in v], key = len))
+
+    # create the thing to pass into .format()- can't have brackets like zip gives
+    formatting = []
+    index = 0
+    all_sizes = []
+    if min_width is None:
+        min_width = 13
+    for val in zip(data.keys(), max_sizes.values()):
+        entry, size = val
+        if size < min_width or index + 1 not in strings:
+            size = min_width
+        # also check dict key length
+        if len(entry) > size:
+            size = len(entry)
+        formatting += [entry, size]
+        all_sizes.append(size)
+        index += 1
+    line_length = sum(all_sizes) + num_cols * 3 - 1 # spaces in header
+    print('+' + '-' * line_length + '+')
+    output_string = '|' + " {:^{}} |" * len(data.keys())
+    print(output_string.format(*formatting))
+    print('+' + '-' * line_length + '+')
+    for line in content:
+        formatting = []
+        for val in zip(line, all_sizes):
+            entry, size = val
+            if not isinstance(entry, str):
+                size = f'{size}.5f'
+            formatting.append(entry)
+            formatting.append(size)
+        print(output_string.format(*formatting))
+    print('+' + '-' * line_length + '+')
