@@ -449,7 +449,7 @@ def fmo(path, File, template, sysData, jobTemp):
         if type(line) != list:
             # INDAT MAY BE DIFF NUMBER OF LINES TO NEW INDAT
             if 'INDAT' in line:
-                fmo_input.append('    INDAT(1)=0,1,-' + str(len(fragList[0]['ids'])) + ',\n')
+                fmo_input.append('     INDAT(1)=0,1,-' + str(len(fragList[0]['ids'])) + ',\n')
                 # REMEMBER WHERE LAST FRAG FINISHED
                 n = len(fragList[0]['ids']) + 1
                 for frag in fragList:

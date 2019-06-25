@@ -218,13 +218,42 @@ def transform(res):
 
 def one_level_dict(res):
     """ Transforms nested dict to dictionary only one level deep """
+    print(res)
+    configs = []
+    roots = []
+    iters = []
+    oscs = [] 
+    waves = []
+    ints = []
+    for config in res:
+        for root in res[config]:
+            for iteration in res[config][root]['peaks']:
+                data = res[config][root]['peaks'][iteration]
+                for val in data:
+                    osc, wave, intensity = val
+                    configs.append(config)
+                    roots.append(root)
+                    iters.append(iteration)
+                    oscs.append(osc)
+                    waves.append(wave)
+                    ints.append(intensity)
 
+    output = {}
+    output['Config'] = configs
+    output['Root']   = roots
+    output['Iteration'] = iters
+    output['Oscillator Strength (eV)'] = oscs
+    output['Wavelength (nm)'] = waves
+    output['Intensity (au)'] = ints
+    return output
 
 def get_fluorescence_data():
     files = get_fluorescence_logs()
     cutoff = user_choice()
     data = grep_data(cutoff, files)
+    onelevel = one_level_dict(data)
     data = transform(data)
+    responsive_table(onelevel, strings = [1, 2, 3], min_width=2)
     write_csv_from_nested(data, col_names = ['Config', 'Root', 'Iteration', 'Oscillator Strength (eV)', 'Wavelength (nm)', 'Intensity (au)'])
 
 if __name__ == '__main__':
