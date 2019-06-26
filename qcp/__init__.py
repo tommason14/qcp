@@ -7,15 +7,14 @@ from .genJob import *
 from .genJobCP import *
 from .general import *
 from .geometry import *
-from .inflate import *
 from .logFile import *
 from .pprint import *
 from .runTasks import *
-from .separate import *
 from .supercomp import *
 from .system import *
 from .tempInp import *
 from .templates import *
+from .xyzGenerate import *
 from .write import *
 from .utils import *
 

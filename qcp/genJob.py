@@ -248,7 +248,6 @@ def psi(path, File, template, sysData, jobTemp):
     from supercomp  import host
     from templates  import psi_rjnJob
     from templates  import psi_gaiJob
-    from templates  import psi_stmJob
     from write      import write_inp
     from write      import write_job
 
@@ -299,8 +298,6 @@ def psi(path, File, template, sysData, jobTemp):
             lines = psi_rjnJob(name)
         elif hw == 'gai':
             lines = psi_gaiJob(name)
-        elif hw == 'stm':
-            lines = psi_stmJob(name)
 
     if lines:
         write_job(npath, name, lines)
@@ -353,11 +350,9 @@ def fmo(path, File, template, sysData, jobTemp):
 
     # TEMPLATE LINES
     input = xyzTemp(path, template, xyzData)
-    #print(input)
     fmo_input = []
-    # ONE LINE REPLACEMENTS - NO MULT YET ***
-    # IF RUNTYP IS ENERGY MAKE ION JOBS
 
+    # IF RUNTYP IS ENERGY MAKE ION JOBS
     for ind in range(len(input)):
         if 'NGROUP' in input[ind]:
             spl_line = re.split('=| ', input[ind])
@@ -449,7 +444,7 @@ def fmo(path, File, template, sysData, jobTemp):
         if type(line) != list:
             # INDAT MAY BE DIFF NUMBER OF LINES TO NEW INDAT
             if 'INDAT' in line:
-                fmo_input.append('     INDAT(1)=0,1,-' + str(len(fragList[0]['ids'])) + ',\n')
+                fmo_input.append('    INDAT(1)=0,1,-' + str(len(fragList[0]['ids'])) + ',\n')
                 # REMEMBER WHERE LAST FRAG FINISHED
                 n = len(fragList[0]['ids']) + 1
                 for frag in fragList:
@@ -486,13 +481,7 @@ def fmo(path, File, template, sysData, jobTemp):
 
     # HARDWARE FOR WRITING
     hw = host()
-
-    # XYZ OF IONS ------------------------------------
     if ions:
-        ncat = 0
-        nani = 0
-        nnrt = 0
-        nunk = 0
         # FOR EACH FRAGMENT
         for frag in fragList:
             ifrag = []
@@ -500,53 +489,37 @@ def fmo(path, File, template, sysData, jobTemp):
                 atm = atmList[ID]
                 ifrag.append([atm['sym'], atm['nu'], atm["x"], atm["y"], atm["z"]])
 
-            # IN CASE QUESTION MARK
-            try:
-                if frag['chrg'] < 0:
-                    ion = 'anion' + str(nani)
-                    nani += 1
-                elif frag['chrg'] > 0:
-                    ion = 'cation' + str(ncat)
-                    ncat += 1
-                else:
-                    ion = 'neutral' + str(nnrt)
-                    nnrt += 1
-            except:
-                if frag['chrg'] == '?':
-                    ion = 'unknown' + str(nunk)
-                    nunk += 1
-
             # MAKE FOLDER AND XYZ
-            if not os.path.isdir(npath + name + '-'+ ion):
-                os.mkdir(npath + name + '-'+ ion)
-            write_xyz(npath + name + '-'+ ion + '/', name + '-'+ ion, ifrag)
+            if not os.path.isdir(npath + name + '-'+ frag["name"]):
+                os.mkdir(npath + name + '-'+ frag["name"])
+            write_xyz(npath + name + '-'+ frag["name"] + '/', name + '-'+ frag["name"], ifrag)
 
             # INPUT AND OUTPUT FOR JOB
             input = fmo_ions(str(frag['chrg']), ifrag, bset, mp2)
-            write_gmsInp(npath + name + '-'+ ion + '/', name + '-'+ ion, input)
+            write_gmsInp(npath + name + '-'+ frag["name"] + '/', name + '-'+ frag["name"], input)
 
             # WRITE JOB
             lines = False
 
             if jobTemp:
                 # lines = job_replace(name, jobTemp)
-                lines = job_replace(name + '-' + ion, jobTemp)
+                lines = job_replace(name + '-' + frag["name"], jobTemp)
             else:
                 if hw == 'rjn':
-                    lines = gms_rjnJob(name + '-'+ ion)
+                    lines = gms_rjnJob(name + '-'+ frag["name"])
                 elif hw == 'mgs':
-                    lines = gms_mgsJob(name + '-'+ ion)
+                    lines = gms_mgsJob(name + '-'+ frag["name"])
                 elif hw == 'gai':
-                    lines = gms_gaiJob(name + '-'+ ion)
+                    lines = gms_gaiJob(name + '-'+ frag["name"])
                 elif hw == 'mas':
-                    lines = gms_masJob(name + '-'+ ion)
+                    lines = gms_masJob(name + '-'+ frag["name"])
                 elif hw == 'mon':
-                    lines = gms_monJob(name + '-'+ ion)
+                    lines = gms_monJob(name + '-'+ frag["name"])
                 elif hw == 'stm':
-                    lines = gms_stmJob(name + '-'+ ion)
+                    lines = gms_stmJob(name + '-'+ frag["name"])
 
             if lines:
-                write_job(npath + name + '-'+ ion + '/', name + '-'+ ion, lines)
+                write_job(npath + name + '-'+ frag["name"] + '/', name + '-'+ frag["name"], lines)
 
     # -------------------------------------------------
 
@@ -565,12 +538,12 @@ def fmo(path, File, template, sysData, jobTemp):
             lines = fmo_mgsJob(name, nfrags, memory, ddi)
         elif hw == 'stm':
             lines = fmo_stmJob(name, nfrags, memory, ddi)
+        elif hw == 'gai':
+            lines = fmo_gaiJob(name)#, nfrags, memory, ddi)
         elif hw == 'mon':
             lines = fmo_monJob(name, nfrags, memory, ddi)
         elif hw == 'mas':
             lines = fmo_masJob(name, nfrags, memory, ddi)
-        elif hw == 'gai':
-            lines = fmo_gaiJob(name)#, nfrags, memory, ddi)
 
     if lines:
         write_job(npath, name, lines)

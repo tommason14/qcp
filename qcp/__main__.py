@@ -44,7 +44,7 @@ def main():
 
 
     # POSSIBLE TASKS
-    list_func = ["{}".format(x) for x in range(10)] + ['A', 'B', 'C']
+    list_func = ["{}".format(x) for x in range(10)] + ['A', 'B', 'C', 'D']
 
     if args.task in list_func:
         task = args.task
@@ -65,6 +65,7 @@ def main():
                           A. Inflate system                       \n\
                           B. Interaction energy                   \n\
                           C. Extras                               \n\
+                          D. Solvation Shell                      \n\
                           0. Quit                                 \n\
                                                            Task: ')
 
