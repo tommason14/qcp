@@ -218,7 +218,6 @@ def transform(res):
 
 def one_level_dict(res):
     """ Transforms nested dict to dictionary only one level deep """
-    print(res)
     configs = []
     roots = []
     iters = []
