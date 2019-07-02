@@ -64,7 +64,7 @@ def get_files(directory, ext):
     for path, dirs, files in os.walk(directory):
         for file in files:
             for e in ext:
-                if re.search(e, file) and file != 'freq.out': # freq.out used for thermo calculations with the fortran code
+                if file.endswith(e) and file != 'freq.out': # freq.out used for thermo calculations with the fortran code
                     fileLst.append(os.path.join(path, file))
     return fileLst
 

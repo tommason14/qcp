@@ -8,38 +8,6 @@ from utils import (get_files,
                    search_dict_recursively,
                    responsive_table)
 
-# def print_data(f):
-#     def inner(*args, **kwargs):
-#         # know we have a col_names list
-#         # find max lengh of filepath for pretty printing
-#         data = []
-#         max_filename_length = 0
-#         max_root_length = 0
-#         for a in args:
-#             if isinstance(a, list):
-#                 for line in a:
-#                     data.append(line)
-#                     config, root, iteration, wavelength, intensity = line
-#                     if len(config) > max_filename_length:
-#                         max_filename_length = len(config)
-#                     if len(root) > max_root_length:
-#                         max_root_length = len(root)
-#         # add some padding
-#         config_length = max_filename_length + 4
-#         root_length = max_root_length + 4
-#         boxsize = config_length + root_length + 9 + 15 + 15 + 14 # 12 is space between each column 
-#         print('+' +  '-' * boxsize + '+')
-#         print("| {:^{}} | {:^{}} | {:^{}} | {:^{}}| {:^{}} |".format('Config', config_length, 'Root', root_length, 'Iteration', 9, 'Wavelength (nm)', 16, 'Intensity (au)', 15))
-#         print('|' + '-' * boxsize + '|')
-#         
-#         for line in data: 
-#             config, root, iteration, wavelength, intensity = line
-#             print("| {:^{}} | {:^{}} | {:^{}} | {:^{}}| {:^{}} |".format(config, config_length, root, root_length, iteration, 9, wavelength, 16, intensity, 15))
-#         print('+' +  '-' * boxsize + '+')
-#         return f(*args, **kwargs)
-#     return inner
-
-
 def is_gaussian(file):
     """Returns True if file is a Gaussian output"""
     for line in read_file(file):
@@ -60,21 +28,11 @@ def is_fluorescence(file):
 
 
 def get_fluorescence_logs():
-    files = get_files('.', ('log', 'out'))
+    files = get_files('.', ['log', 'out'])
     # remove f- files from qcp results output
     for file in files:
         if 'f-' in file:
             files.remove(file)
-
-    # path = '.'
-    # level = False # all levels
-    # level = input('Number of subdirs [0-9]: ')
-    # file_pattern = ['.log', '.out'] 
-    # files        = find_files(path, level, file_pattern)
-    # if len(files) == 0:
-    #     noFiles()
-    # for path, file in files:   
-    #     print(path, file)
     return files
 
 
@@ -98,7 +56,6 @@ def user_choice():
 
     return cutoff
 
-
 def update_dict_with_name(file, d):
     file = file.replace('./', '')
     *path, f = file.split('/')
@@ -115,7 +72,6 @@ def update_dict_with_name(file, d):
         d[name] = {}
     return d, name
 
-
 def find_root(file, d, name):
     root = None
     for line in read_file(file):
@@ -124,7 +80,7 @@ def find_root(file, d, name):
             for i, val in enumerate(line):
                 if 'root=' in val:
                     root = val.split('=')[-1][:-1]
-    if root is None: # keep track of lines
+    if root is None:
         root = 'initial_spectra'
     d[name][root] = {}
     d[name][root]['peaks'] = {}
@@ -247,13 +203,16 @@ def one_level_dict(res):
     return output
 
 def get_fluorescence_data():
-    files = get_fluorescence_logs()
     cutoff = user_choice()
-    data = grep_data(cutoff, files)
-    onelevel = one_level_dict(data)
-    data = transform(data)
-    responsive_table(onelevel, strings = [1, 2, 3], min_width=2)
-    write_csv_from_nested(data, col_names = ['Config', 'Root', 'Iteration', 'Oscillator Strength (eV)', 'Wavelength (nm)', 'Intensity (au)'])
+    files = get_fluorescence_logs()
+    if len(files) > 0:
+        data = grep_data(cutoff, files)
+        onelevel = one_level_dict(data)
+        data = transform(data)
+        responsive_table(onelevel, strings = [1, 2, 3], min_width=2)
+        write_csv_from_nested(data, col_names = ['Config', 'Root', 'Iteration', 'Oscillator Strength (eV)', 'Wavelength (nm)', 'Intensity (au)'])
+    else:
+        print('No relevant log files')
 
 if __name__ == '__main__':
     main()
