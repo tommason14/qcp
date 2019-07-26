@@ -188,13 +188,6 @@ def psi_cpoise(path, File, template, sysData, jobTemp, dist):
                         if re.search('^\s*-?[0-9]\s*-?[0-9]\s*$', input[i]):
                             # IF CHRG = MULT COULD BE TRICKY
                             input[i] = ' ' + str(frag['chrg']) + ' ' + str(totMult) + '\n'
-                        # CHANGE MEMORY
-                        if re.search('memory', input[i]):
-                            line = re.split(' |G|g', input[i])
-                            for bit in line:
-                                if re.search('[0-9]', bit):
-                                    input[i] = input[i].replace(bit, '64')
-                                    break
                 # WRITE INPUT FILE FOR EACH FRAG
                 write_inp(npath + frag["name"] + '/', frag["name"], input)
 

@@ -48,11 +48,14 @@ def energy_gms(path, File, energy):
 
         if not fmo:
             for line in lines:
-                # if "SCS-MP2" in line:
-                if 'E(MP2)' in line:
+                if "SCS-MP2" in line:
                     MP2 = line.split()
-                    MP2 = MP2[1]
-                    # E(MP2)=       -76.2919350192  ACTUALLY, THIS IS THE SCS-MP2 ENERGY
+                    if '=' not in MP2[1]:
+                        MP2 = MP2[1]
+                        # E(MP2)=       -76.2919350192  ACTUALLY, THIS IS THE SCS-MP2 ENERGY
+                    else:
+                        # SCS-MP2 E=     -1161.8759377385 (magnus, massive)
+                        MP2 = MP2[-1]
                 elif 'E(0)=' in line:
                     HF  = line.split()
                     HF  = HF[len(HF) - 1]
