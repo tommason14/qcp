@@ -50,7 +50,7 @@ def energy_gms(path, File, energy):
             for line in lines:
                 if "SCS-MP2" in line:
                     MP2 = line.split()
-                    if '=' not in MP2[1]:
+                    if 'E=' not in MP2[1]:
                         MP2 = MP2[1]
                         # E(MP2)=       -76.2919350192  ACTUALLY, THIS IS THE SCS-MP2 ENERGY
                     else:
