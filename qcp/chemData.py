@@ -155,6 +155,10 @@ CationDB["nme4"]    = ['N', 'C', 'C', 'C', 'C', 'H', 'H', 'H',
 CationDB["ethylammonium"] \
                     = ['C', 'C', 'H', 'H', 'H', 'H', 'H', 'H',
                        'H', 'H', 'N']
+CationDB['hydroxy-ea'] \
+                    = ['C', 'H', 'H', 'H', 'N', 'H', 'H', 'C',
+                       'H', 'H', 'C', 'H', 'H', 'O', 'H']
+                          
 CationDB["ethanolammonium"] \
                     = ['C', 'C', 'H', 'H', 'H', 'H', 'H', 'H',
                        'H', 'H', 'N', 'O']
