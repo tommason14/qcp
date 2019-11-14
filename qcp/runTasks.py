@@ -19,7 +19,7 @@ def comp_tasks(task, path, filename, jobfile):
     if task == "1":
         import sys
         from genJob  import g09, gms, psi, fmo, orc
-        
+
         # RECURSIVE FILE CREATION
         if not Files:
             #level        = False                   # ALL LEVELS
@@ -30,7 +30,7 @@ def comp_tasks(task, path, filename, jobfile):
                 noFiles()
 
         for path, File in Files:
-            
+
             # CHECK IF ANY TEMPLATE FILES ARE FMO FOR CORRECT FRAGMENTATION
             fmoC = False
             templates = []
@@ -124,7 +124,7 @@ def comp_tasks(task, path, filename, jobfile):
         # SEARCH FILES
         for path, File in Files:
             # DO NOT SORT PREVIOUS LOG FILES
-            if not File.startswith('f-'):
+            if not File.startswith('f-') and not File.startswith('slurm'):
                 # GET SOFTWARE OF LOG
                 soft = software(path, File)
                 if not soft:
@@ -152,7 +152,7 @@ def comp_tasks(task, path, filename, jobfile):
     elif task == '7':
         import sys
         from genJob   import g09, gms, psi, fmo
-        from genJobCP import psi_cpoise, g09_cpoise
+        from genJobCP import psi_cpoise, g09_cpoise, orc_cpoise
 
         if not Files:
             level        = False                   # ZERO LEVELS
@@ -206,6 +206,8 @@ def comp_tasks(task, path, filename, jobfile):
                     psi_cpoise(path, File, template, sysData, jobTemp, dist)
                 elif soft == 'fmo':
                     pass
+                elif soft == 'orc':
+                    orc_cpoise(path, File, template, sysData, jobTemp, dist)
 
     # DISTANCES AND ANGLES
     elif task == '8':
@@ -321,7 +323,7 @@ def comp_tasks(task, path, filename, jobfile):
     # FLUORESCENCE DATA
     elif task == 'C':
         from extras import get_fluorescence_data
-     
+
         task = input('                                    \n\
                           1. Fluorescence Data            \n\
                                                            Task: ')

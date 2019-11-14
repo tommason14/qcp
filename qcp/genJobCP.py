@@ -462,3 +462,141 @@ def g09_cpoise(path, File, template, sysData, dist):
             write_job(npath, frag["name"], input)
 
 
+### COUNTERPOISE PSI4
+def orc_cpoise(path, File, template, sysData, jobTemp, dist):
+    import os, re
+    from supercomp  import host
+    from genJob     import xyzTemp
+    from genJob     import job_replace
+    from templates  import orc_rjnJob
+    from write      import write_inp
+    from write      import write_xyz
+    from write      import write_job
+
+    name = File.replace('.xyz', '').split('_')[0]
+
+    # MAKE NEW DIR AND NEW PATH
+    npath = newDirCP(path, File, template)
+
+    # UNPACK sysData
+    fragList, atmList, totChrg, totMult = sysData
+
+    # IF NOT RADIAL CUTOFF FOR MOLS INCLUDED DO ALL
+    if not dist:
+
+        # FOR EACH FRAGMENT
+        for frag in fragList:
+            ifrag = []
+            for atm in atmList:
+                if atm['id'] in frag['ids']:
+                    ifrag.append([atm['sym'], atm['nu'], atm["x"], atm["y"], atm["z"]])
+                else:
+                    # MAKE OTHER FRAGS GHOST
+                    ifrag.append([atm['sym'] + ':'] + [atm['nu'], atm["x"], atm["y"], atm["z"]])
+
+            # MAKE FOLDERS
+            if not os.path.isdir(npath + frag["name"]):
+                os.mkdir(npath + frag["name"])
+
+            # PUT XYZ IN TEMP FOR EACH FRAG
+            input = xyzTemp(path, template, ifrag)
+
+            # CHANGE CHARGE AND MULTIPLICITY/MEMORY
+            for i in range(len(input)):
+                if type(input[i]) != list:
+
+                    # CHANGE CHRG AND MULT
+                    if re.search('^\*xyzfile\s*-?[0-9]\s*-?[0-9]\s*', input[i]):
+                        if totChrg == '?':
+                            print("Cannot determine chrg/mult, using template values")
+                        # IF CHRG = MULT COULD BE TRICKY
+                        else:
+                            line = input[i].split()
+                            if '.xyz' in line[-1]:
+                                input[i] = '*xyz ' + str(frag["chrg"]) + ' ' + str(frag["mult"]) + '\n'
+
+                                # ADD XYZ AS GHOST ATOMS
+                                for atm in ifrag:
+                                    i += 1
+                                    input.insert(i, atm)
+
+                                # END XYZ
+                                input.insert(i+1, '*')
+
+                                # WILL CHANGE NUMBER OF LINES - DO NOT CONTINUE THIS LOOP
+                                break
+
+            # WRITE INPUT FILE FOR EACH FRAG
+            write_inp(npath + frag["name"] + '/', name +'-'+ frag["name"], input)
+
+            # WRITE JOB
+            lines = False
+            if jobTemp:
+                lines = job_replace(name +'-'+ frag["name"], jobTemp)
+            else:
+                hw = host()
+                if hw == 'rjn':
+                    lines = orc_rjnJob(name +'-'+ frag["name"])
+
+            if lines:
+                write_job(npath + frag["name"] + '/', name +'-'+ frag["name"], lines)
+
+    # IF RADIAL CUTOFF FOR MOLS INCLUDED IN EACH FILE
+    else:
+        from xyzGenerate import xyzShell
+
+        # GET < DIST SEPARATED FRAGS
+        # xyzList = [frag, mol, ghost atoms]
+        xyzList = xyzShell(path, File, sysData, dist, returnList=True)
+
+        # FOR EACH FRAGMENT CENTER
+        for frag, firstMol, otherMol in xyzList:
+            ifrag = []
+            for atm in firstMol:
+                ifrag.append([atm['sym'], atm['nu'], atm["x"], atm["y"], atm["z"]])
+            for atm in otherMol:
+                ifrag.append([atm['sym'] + ":"] + [atm['nu'], atm["x"], atm["y"], atm["z"]])
+
+            # MAKE FOLDERS
+            if not os.path.isdir(npath + frag["name"]):
+                os.mkdir(npath + frag["name"])
+
+            # PUT XYZ IN TEMP FOR EACH FRAG
+            input = xyzTemp(path, template, ifrag)
+
+            # CHANGE CHARGE AND MULTIPLICITY/MEMORY
+            # MEMORY OF INPUT NEEDS TO BE >>> MEM JOB
+            for i in range(len(input)):
+                if type(input[i]) != list:
+                    # CHANGE CHRG AND MULT
+                    if re.search('^\*xyzfile\s*-?[0-9]\s*-?[0-9]\s*', input[i]):
+                        if totChrg == '?':
+                            print("Cannot determine chrg/mult, using template values")
+                        # IF CHRG = MULT COULD BE TRICKY
+                        else:
+                            line = input[i].split()
+                            if '.xyz' in line[-1]:
+                                input[i] = '*xyzfile ' + str(totChrg) + ' ' + str(totMult) + ' ' +line[-1]
+
+                if re.search('.xyz', input[i]):
+                    line     = input[i].strip()
+                    line     = line.rsplit(' ', 1)[0]
+                    input[i] = line+' '+name+'-ghost.xyz\n'
+
+            # WRITE GHOST FILE XYZ
+            write_xyz(npath + frag["name"] + '/', frag["name"] + "-ghost", ifrag)
+
+            # WRITE INPUT FILE FOR EACH FRAG
+            write_inp(npath + frag["name"] + '/', frag["name"], input)
+
+            # WRITE JOB
+            lines = False
+            if jobTemp:
+                lines = job_replace(frag["name"], jobTemp)
+            else:
+                hw = host()
+                if hw == 'rjn':
+                    lines = orc_rjnJob(frag["name"])
+
+            if lines:
+                write_job(npath + frag["name"] + '/', frag["name"], lines)
