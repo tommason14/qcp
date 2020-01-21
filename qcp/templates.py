@@ -16,6 +16,31 @@ def psi_stmJob(name):
              "find . -empty -delete"] # slurm outputs slurm-[0-9]*.out by default, but psi4 doesn't write to it 
     return lines
 
+def psi_gadiJob(name):
+    # PSI4 MEMORY IN INP NEEDS >>> MEM IN JOB
+    # CPUS FROM MEMORY
+    #if (int(memory) % 2 == 0): #even
+    #    cpus = int(memory / 5)
+    #else: #odd
+    #     cpus = int((memory + 1) / 5)
+    #jobfs  = (int(memory/100) + 1) * 100
+    #memory = str(memory)
+    #cpus   = str(cpus)
+    #jobfs  = str(jobfs)
+    memory = '128'
+    cpus   = '16'
+    jobfs  = '1000'
+    lines= ["#!/bin/bash\n",
+    "#PBS -P k96\n",
+    "#PBS -l mem=" + memory + "GB\n",
+    "#PBS -l ncpus=" + cpus + "\n",
+    "#PBS -l jobfs=" + jobfs + "GB\n",
+    "#PBS -l walltime=48:00:00\n",
+    #"#PBS -q normalbw\n"
+    "#PBS -l wd\n\n",
+    "module load psi4/1.3.2\n",
+    "psi4 -n $PBS_NCPUS " + name + ".inp " + name + ".log"]
+    return lines
 def psi_rjnJob(name):
     # PSI4 MEMORY IN INP NEEDS >>> MEM IN JOB
     # CPUS FROM MEMORY
@@ -72,6 +97,24 @@ def psi_masJob(name):
 
 ### GAMESS - NO FMO - 1 NODE  --------
 
+def gms_gadiJob(name):
+    # DOESN'T REQUIRE WHOLE NODE
+    #mem, cpus, jobfs, wall = memFmo(nfrags, 'rjn', mwords, ddi)
+    mem   = '64'
+    cpus  = '16'
+    jobfs = '100'
+    wall  = '2:00:00'
+    lines=["#!/bin/sh\n",
+    "#PBS -P k96\n",
+    "#PBS -l mem=" + mem + "gb\n",
+    "#PBS -l ncpus=" + cpus + "\n",
+    "#PBS -l jobfs=" + jobfs + "gb\n",
+    "#PBS -l walltime=" + wall + "\n",
+    "#PBS -l wd\n\n",
+    "module load gamess/2019-09-R2\n",
+    "rungms " + name + ".inp $PBS_NCPUS > " + name + ".log"]
+    return lines
+
 ### GAMESS ON RAIJIN JOB SCRIPT
 def gms_rjnJob(name):
     # DOESN'T REQUIRE WHOLE NODE
@@ -90,6 +133,19 @@ def gms_rjnJob(name):
     "module unload openmpi/1.6.3\n",
     "module load openmpi/1.8.4\n",
     "/short/k96/apps/gamess16/rungms.rika " + name + ".inp $PBS_NCPUS > " + name + ".log"]
+    return lines
+
+def orc_gadiJob(name):
+    lines=["#!/bin/sh\n",
+    "#PBS -P k96\n",
+    "#PBS -l mem=32gb\n",
+    "#PBS -l ncpus=16\n",
+    "#PBS -l jobfs=200gb\n",
+    "#PBS -l walltime=200:00:00\n",
+    "#PBS -l software=orca\n",
+    "#PBS -l wd\n\n",
+    "module load orca/4.2.1\n",
+    "$ORCA_PATH/orca " + name + ".inp > " + name + ".log"]
     return lines
 
 def orc_rjnJob(name):
@@ -189,6 +245,20 @@ def gms_gaiJob(name):
 
 
 ### FMO ON RAIJIN JOB SCRIPT
+
+def fmo_gadiJob(name, nfrags, mwords, ddi):
+    mem, cpus, jobfs, wall = memFmo(nfrags, 'gadi', mwords, ddi)
+    lines=["#!/bin/sh\n",
+    "#PBS -P k96\n",
+    "#PBS -l mem=" + mem + "gb\n",
+    "#PBS -l ncpus=" + cpus + "\n",
+    "#PBS -l jobfs=" + jobfs + "gb\n",
+    "#PBS -l walltime=" + wall + "\n",
+    "#PBS -l wd\n\n",
+    "module load gamess/2019-09-R2\n",
+    "rungms " + name + ".inp $PBS_NCPUS > " + name + ".log"]
+    return lines
+
 def fmo_rjnJob(name, nfrags, mwords, ddi):
     mem, cpus, jobfs, wall = memFmo(nfrags, 'rjn', mwords, ddi)
     lines=["#!/bin/sh\n",
@@ -304,7 +374,7 @@ def memFmo(nfrags, hw, mwords, ddi):
     mwords     = float(mwords)
     ddi        = float(ddi)
     # RAIJIN
-    if hw == 'rjn':
+    if hw == 'rjn' or hw == 'gadi':
         cpuPerNode = 16
         cpus       = nfrags * cpuPerNode
         if not ddi:

@@ -151,6 +151,7 @@ def gms(path, File, template, sysData, jobTemp):
 
     import re
     from supercomp  import host
+    from templates  import gms_gadiJob
     from templates  import gms_rjnJob
     from templates  import gms_mgsJob
     from templates  import gms_gaiJob
@@ -226,6 +227,8 @@ def gms(path, File, template, sysData, jobTemp):
         hw = host()
         if hw == 'rjn':
             lines = gms_rjnJob(name)
+        elif hw == 'gadi':
+            lines = gms_gadiJob(name)
         elif hw == 'mgs':
             lines = gms_mgsJob(name)
         elif hw == 'gai':
@@ -247,6 +250,7 @@ def psi(path, File, template, sysData, jobTemp):
     import re
     from supercomp  import host
     from templates  import psi_rjnJob
+    from templates  import psi_gadiJob
     from templates  import psi_gaiJob
     from write      import write_inp
     from write      import write_job
@@ -296,6 +300,8 @@ def psi(path, File, template, sysData, jobTemp):
         hw = host()
         if hw == 'rjn':
             lines = psi_rjnJob(name)
+        elif hw == 'gadi':
+            lines = psi_gadiJob(name)
         elif hw == 'gai':
             lines = psi_gaiJob(name)
 
@@ -311,12 +317,14 @@ def fmo(path, File, template, sysData, jobTemp):
     from supercomp  import host
     from chemData   import pTable
     from templates  import fmo_rjnJob
+    from templates  import fmo_gadiJob
     from templates  import fmo_mgsJob
     from templates  import fmo_stmJob
     from templates  import fmo_gaiJob
     from templates  import fmo_monJob
     from templates  import fmo_masJob
     from templates  import gms_rjnJob
+    from templates  import gms_gadiJob
     from templates  import gms_mgsJob
     from templates  import gms_masJob
     from templates  import gms_monJob
@@ -509,6 +517,8 @@ def fmo(path, File, template, sysData, jobTemp):
                     lines = gms_rjnJob(name + '-'+ frag["name"])
                 elif hw == 'mgs':
                     lines = gms_mgsJob(name + '-'+ frag["name"])
+                elif hw == 'gadi':
+                    lines = gms_gadiJob(name + '-'+ frag["name"])
                 elif hw == 'gai':
                     lines = gms_gaiJob(name + '-'+ frag["name"])
                 elif hw == 'mas':
@@ -538,6 +548,8 @@ def fmo(path, File, template, sysData, jobTemp):
             lines = fmo_mgsJob(name, nfrags, memory, ddi)
         elif hw == 'stm':
             lines = fmo_stmJob(name, nfrags, memory, ddi)
+        elif hw == 'gadi':
+            lines = fmo_gadiJob(name)#, nfrags, memory, ddi)
         elif hw == 'gai':
             lines = fmo_gaiJob(name)#, nfrags, memory, ddi)
         elif hw == 'mon':
@@ -556,6 +568,7 @@ def orc(path, File, template, sysData, jobTemp):
     import re
     from supercomp  import host
     from templates  import orc_rjnJob
+    from templates  import orc_gadiJob
     from write      import write_inp
     from write      import write_job
 
@@ -606,6 +619,8 @@ def orc(path, File, template, sysData, jobTemp):
         hw = host()
         if hw == 'rjn':
             lines = orc_rjnJob(name)
+        elif hw == 'gadi':
+            lines = orc_gadiJob(name)
 
     if lines:
         write_job(npath, name, lines)

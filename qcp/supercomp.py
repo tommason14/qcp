@@ -11,7 +11,7 @@ def host():
 
     hostDict = {'raijin': 'rjn', 'msgln': 'gai', 'm3': 'mas',
                 'magnus': 'mgs', 'monarch': 'mon',
-                'stampede': 'stm'}
+                'stampede': 'stm', 'gadi': 'gadi'}
 
     for key, value in hostDict.items():
         if key in hostName:
@@ -73,6 +73,38 @@ def rjn_q():
 
     return queDicts
 
+def gadi_q():
+    import re
+    import subprocess as sp
+
+    queDicts = []
+
+    user  = sp.getoutput("echo $USER")
+    queue = get_queue("qstat -u " + user)
+
+    i = 1
+    for line in queue:
+      if user in line:
+        line = re.split(' |\.r-man2', line)
+        line = list(filter(None, line))
+
+        temp_dict           = {'id' : line[0]}
+        temp_dict['num']    = i
+        temp_dict['user']   = line[1]
+        temp_dict['queue']  = line[2]
+        temp_dict['name']   = line[3]
+        temp_dict['sessid'] = line[4]
+        temp_dict['nodes']  = line[5]
+        temp_dict['cpus']   = line[6]
+        temp_dict['mem']    = line[7]
+        temp_dict['wtime']  = line[8]
+        temp_dict['status'] = line[9]
+        temp_dict['rtime']  = line[10].split('\n')[0]
+
+        queDicts.append(temp_dict)
+        i += 1
+
+    return queDicts
 
 def gai_q():
     import subprocess as sp
@@ -225,6 +257,7 @@ def deleteJob():
     call_q = {
              'rjn' : rjn_q,
              'gai' : gai_q,
+             'gadi' : gadi_q,
              'mgs' : mgs_q,
              'mas' : mas_q,
              'mon' : mon_q,
@@ -294,7 +327,7 @@ def deleteJob():
         toDel = input("Are you sure? [y/n] ")
         if toDel == 'y':
             for ID in toDel_list:
-                if hw is 'rjn' or hw is 'gai':
+                if hw is 'rjn' or hw is 'gai' or hw is 'gadi':
                     sp.call("qdel "  + ID, shell=True)
                     print("Removed " + ID + " from queue")
 
@@ -321,6 +354,9 @@ def submit(File):
             Time = time.strftime("%H:%M:%S")
             npath = os.getcwd()
             f.write('{:12}{:10}{:8} {:30}  {}\n'.format(date, Time, ID, File, npath))
+    elif hw == 'gadi':
+        ID = sp.check_output(['qsub', File]).decode("utf-8").split('.')[0]
+        print("Submitted: {:8}{}".format(ID, File))
     elif hw == 'stm':
         ID = sp.check_output(['sbatch', File]).decode("utf-8").strip().split(' ')[-1]
         print("Submitted: {:8}{}".format(ID, File))
